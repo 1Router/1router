@@ -110,7 +110,7 @@ async fn main() -> anyhow::Result<()> {
         .unwrap_or_else(|_| "0.0.0.0:3000".to_string())
         .parse()?;
 
-    info!("1router-api {} listening on {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    info!("1router API ({} v{}) listening on {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"), addr);
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
