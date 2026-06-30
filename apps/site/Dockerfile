@@ -9,7 +9,12 @@
 #   docker run --rm -p 3000:3000 1router-site
 
 # ─── Stage 1: install + build ──────────────────────────────
-FROM oven/bun:1.1 AS builder
+# Pin to oven/bun:1.3 (matches the bun that generated bun.lock on the host).
+# Bun 1.1 cannot parse 1.2+/1.3 lockfile formats, so without this pin
+# `bun install --frozen-lockfile` fails with InvalidLockfileVersion.
+# 1.3 (explicit) is preferable to 1 (mutable / latest 1.x) so future bun
+# minor releases don't silently drift away from the frozen lockfile schema.
+FROM oven/bun:1.3 AS builder
 
 WORKDIR /repo
 
@@ -27,6 +32,12 @@ COPY packages/models/package.json ./packages/models/
 
 RUN bun install --frozen-lockfile
 
+# The site’s static assets live at /public (repo root) so they survive the
+# monorepo flatten — they need to end up at apps/site/public in the image
+# because that’s what Next.js serves from. Placed AFTER bun install so changes
+# to public/ only invalidate this single layer, not the install layer.
+COPY public ./apps/site/public
+
 # Source tree.
 COPY apps/site     ./apps/site
 COPY packages/models ./packages/models
@@ -37,10 +48,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN bun run build
 
 # ─── Stage 2: production runtime ────────────────────────────
-FROM oven/bun:1.1-slim AS runner
+# Same pin as the builder — keeps the runtime on the same bun minor as the
+# lockfile was generated against. Slim variant; trimming curl'd layers.
+FROM oven/bun:1.3-slim AS runner
 
 # ca-certificates so HTTPS works for bun's registry pulls; skip wget because
-# k8s httpGet probes already cover health.
+# k8s httpGet probes cover health.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates \
  && rm -rf /var/lib/apt/lists/*
