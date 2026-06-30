@@ -1,8 +1,7 @@
 # Multi-stage build for the 1Router Next.js site.
 #
 # Uses bun to mirror the rest of the monorepo. Single WORKDIR (/repo) for the
-# whole file so the layer-cache story stays coherent; install wget in the
-# runner so HEALTHCHECK actually has a probe binary.
+# whole file so the layer-cache story stays coherent.
 #
 # Build context: repo root.
 # Usage:
@@ -40,10 +39,10 @@ RUN bun run build
 # ─── Stage 2: production runtime ────────────────────────────
 FROM oven/bun:1.1-slim AS runner
 
-# Install wget so the HEALTHCHECK probe actually exists in the slim image.
-# oven/bun:1.1-slim is Debian-slim based and does not ship wget by default.
+# ca-certificates so HTTPS works for bun's registry pulls; skip wget because
+# k8s httpGet probes already cover health.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates wget \
+ && apt-get install -y --no-install-recommends ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /repo
@@ -52,7 +51,9 @@ ENV NODE_ENV=production \
     PORT=3000
 
 # Runtime artifacts.
-COPY --from=builder /repo/apps/site/.next ./apps/site/.next
+# Use --chown=bun:bun on .next so the non-root `bun` user can write to
+# .next/cache without a startup permission error.
+COPY --from=builder --chown=bun:bun /repo/apps/site/.next ./apps/site/.next
 COPY --from=builder /repo/apps/site/public ./apps/site/public
 
 # Install only production deps from the hoisted root lockfile.
@@ -66,8 +67,5 @@ USER bun
 WORKDIR /repo/apps/site
 
 EXPOSE 3000
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:3000/ >/dev/null || exit 1
 
 CMD ["bun", "run", "start"]
