@@ -1,84 +1,57 @@
-# 1Router Frontend
+# 1Router — One Interface for All AI Models
 
-[![GitHub stars](https://img.shields.io/github/stars/1Router/1router-site)](https://github.com/1Router/1router-site/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/1Router/1router-site)](https://github.com/1Router/1router-site/network)
-[![GitHub issues](https://img.shields.io/github/issues/1Router/1router-site)](https://github.com/1Router/1router-site/issues)
-[![GitHub license](https://img.shields.io/github/license/1Router/1router-site)](https://github.com/1Router/1router-site/blob/main/LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-15.1.5-black)](https://nextjs.org)
+1Router gives developers a single, OpenAI-compatible API for every AI model — with unified routing, pay-as-you-go pricing, and full data sovereignty.
 
-This is the frontend application for [1Router](https://1router.com), built with [Next.js](https://nextjs.org). 1Router is a unified platform that provides seamless access to multiple AI models through a single API interface.
+This repository is a **monorepo** containing two deployed services and one shared catalog package.
 
-## About 1Router
+## Monorepo layout
 
-1Router enables developers to access and switch between various AI models from providers like OpenAI, Anthropic, Google, Mistral, and more through a unified API interface.
-
-### Key Features
-
-- **Unified API**: Access multiple AI models with a single integration
-- **Token-Optimized Routing**: Automatic request routing based on token efficiency
-- **Pay-as-you-go Pricing**: No subscriptions - only pay for what you use
-- **Custom Routing**: Prioritize models based on cost, latency, or custom criteria
-- **OpenAI-Compatible API**: Minimal changes needed for existing OpenAI integrations
-
-## Getting Started
-
-First, install the dependencies:
-
-```bash
-pnpm install
+```
+.
+├── apps/
+│   ├── site/          Next.js 15 frontend    → 1Router.com
+│   └── api/           Axum/Rust backend      → api.1router.com  (scaffold)
+├── packages/
+│   └── models/        Shared catalog         → @1router/models
+│                       (TS module for the site, JSON for the API)
+├── turbo.json         Build orchestration
+├── bun.lockb          Bun workspace lockfile (pnpm-lock kept under apps/site/ as fallback)
+├── package.json       Root workspace manifest (bun workspaces)
+└── LICENSE            FSL-1.1-Apache-2.0
 ```
 
-Run the development server:
+## Apps
+
+| Path        | URL               | Stack                            | Status   |
+| ----------- | ----------------- | -------------------------------- | -------- |
+| `apps/site` | 1router.com       | Next.js 15, React 19, Tailwind   | Active   |
+| `apps/api`  | api.1router.com   | Rust, Axum, Tokio                | Scaffold |
+
+## Packages
+
+| Package          | Consumed by           | Purpose                                                              |
+| ---------------- | --------------------- | -------------------------------------------------------------------- |
+| `@1router/models`| `apps/site`, `apps/api` | Single source of truth for the supported model catalog. |
+
+## Workspace tooling
+
+- **Package manager** — [Bun](https://bun.sh) (workspaces). `pnpm-lock.yaml` is preserved under `apps/site/` as a fallback.
+- **Build orchestration** — [Turborepo](https://turbo.build). The Rust crate is built directly with `cargo` (Turborepo's pipeline is configured in `turbo.json` for the JS side).
+
+## Getting started
 
 ```bash
-pnpm dev
+bun install                       # install workspace deps
+bun run dev:site                  # → http://localhost:3000
+bun run dev:api                   # → http://localhost:3000  (cargo run)
+bun run build                     # builds site (turbo) + api (cargo --release)
+bun run lint                      # lint everything
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How the apps stay in sync
 
-You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
+The model catalog lives at **`packages/models/models.json`** (with a typed TS view at `packages/models/src/index.ts`). The site imports the TS module through the `@1router/models` workspace package; the Rust API embeds the JSON directly via `include_str!` at compile time. Both see the same catalog.
 
-## Project Structure
+## License
 
-- `src/app/*` - Main application pages and routing
-- `src/components/*` - Reusable UI components
-- `src/lib/*` - Utility functions and shared logic
-
-## Tech Stack
-
-- **Framework**: Next.js 15.1.5
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Package Manager**: pnpm
-- **UI Components**: Radix UI
-
-## Development
-
-```bash
-# Run development server
-pnpm dev
-
-# Build for production
-pnpm build
-
-# Start production server
-pnpm start
-
-# Run linting
-pnpm lint
-```
-
-## Learn More
-
-To learn more about the technologies used in this project:
-
-- [Next.js Documentation](https://nextjs.org/docs) - Next.js features and API
-- [Tailwind CSS](https://tailwindcss.com/docs) - Utility-first CSS framework
-- [Radix UI](https://www.radix-ui.com/docs) - Unstyled, accessible UI components
-
-## Deployment
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Released under **FSL-1.1-Apache-2.0** — see [`LICENSE`](./LICENSE). Each release is irrevocably granted an additional Apache 2.0 license that becomes effective two years after release.
