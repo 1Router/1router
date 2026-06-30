@@ -11,6 +11,6 @@
     "./models.json": "./models.json"
   },
   "scripts": {
-    "lint": "echo 'models package: no lint configured'"
+    "lint": "tsc --noEmit"
   }
 }
