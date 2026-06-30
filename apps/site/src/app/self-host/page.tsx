@@ -20,7 +20,7 @@ const steps = [
   {
     num: "1",
     title: "Clone the repository",
-    command: "git clone https://github.com/1router/1router-frontend.git\ncd 1router-frontend",
+    command: "git clone https://github.com/1router/1router.git\ncd 1router",
   },
   {
     num: "2",
@@ -72,7 +72,7 @@ export default function SelfHostPage() {
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
-            href="https://github.com/1router/1router-frontend"
+            href="https://github.com/1router/1router"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:brightness-110"

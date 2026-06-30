@@ -82,7 +82,7 @@ export function Nav() {
         {/* GitHub stars + CTA + theme */}
         <div className="flex items-center gap-2">
           <Link
-            href="https://github.com/1router/1router-frontend"
+            href="https://github.com/1router/1router"
             target="_blank"
             rel="noreferrer"
             className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-secondary"

@@ -95,7 +95,7 @@ export default function AboutPage() {
           so within roughly two years, every commit becomes fully open source.
         </p>
         <Link
-          href="https://github.com/1router/1router-frontend"
+          href="https://github.com/1router/1router"
           target="_blank"
           rel="noreferrer"
           className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"

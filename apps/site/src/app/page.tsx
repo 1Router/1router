@@ -128,7 +128,7 @@ export default function Home() {
                 Self-Host Guide
               </Link>
               <Link
-                href="https://github.com/1router/1router-frontend"
+                href="https://github.com/1router/1router"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-6 py-3 text-sm font-semibold transition-colors hover:bg-secondary"
