@@ -13,18 +13,18 @@
 !.yarn/versions
 
 # Testing
-/coverage
+coverage
 
 # Next.js
-/.next/
-/out/
+.next/
+out/
 
 # Standalone Next.js output (when `output: 'standalone'` is enabled)
-/.next/standalone/
-/.next/static/
+.next/standalone/
+.next/static/
 
 # Production bundles
-/build
+build
 
 # Misc
 .DS_Store
@@ -53,19 +53,19 @@ next-env.d.ts
 # ─── Monorepo additions ─────────────────────────────────────
 
 # Turborepo
-/.turbo/
+.turbo/
 
 # Rust target + the catalog that build.rs generates
 /apps/api/target/
 /apps/api/catalog/
 
 # General build outputs at any depth
-/dist/
+dist/
 /build/
 
 # Bun / Pnpm caches
-/.bun/
-/.pnpm-store/
+.bun/
+.pnpm-store/
 
 # IDE / OS junk
 .vscode/
