@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: 1router
+  name: site
   namespace: 1router
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: 1router
+      app: site
   template:
     metadata:
       labels:
-        app: 1router
+        app: site
     spec:
       containers:
-      - name: 1router
-        image: ghcr.io/1router/1router:main
+      - name: site
+        image: ghcr.io/1router/site:main
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
