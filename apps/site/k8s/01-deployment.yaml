@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: 1router-frontend
-        image: ghcr.io/1router/1router-frontend:latest
+        image: ghcr.io/1router/1router-site:main
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
@@ -40,13 +40,15 @@ spec:
           initialDelaySeconds: 15
           periodSeconds: 10
           timeoutSeconds: 3
-# ─── TODO before production ────────────────────────────────────────────────
-# - Pin the image tag to :VERSION-gitsha (immutable, rollback-friendly)
-#   instead of :latest. Examples already published by apps/site/build.sh:
-#     :0.1.0-aeb7b72
-#     :0.1.0
-# - Add imagePullSecrets + cited dockerconfigjson Secret if the GHCR
-#   package is private.
+# ====== TODO before production ========================================
 # - Bump replicas ≥ 2 and add podAntiAffinity / PodDisruptionBudget / HPA.
+#   With imagePullPolicy: Always, every new :main image digest triggers
+#   a rolling restart on the next pod restart; rolling adds extra capacity
+#   while old pods drain, so two replicas is the minimum to keep traffic
+#   flowing through a redeploy.
+# - For instant manual rollback without rebuilding, edit image: above to
+#   one of the immutable tags already published by apps/site/build.sh:
+#     :0.1.0-aeb7b72   (specific commit on this version)
+#     :0.1.0           (specific version)
 # - Configure a horizontalPodAutoscaler on CPU and memory.
-# ───────────────────────────────────────────────────────────────────────────
+# ======================================================================

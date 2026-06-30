@@ -1,5 +1,6 @@
 #!/bin/bash
-# Builds and pushes the 1Router site image to GHCR (ghcr.io/1router/...).
+# Builds and pushes the 1Router site image to GHCR (ghcr.io/1router/1router-site).
+# Image is tagged :main so the deployment always tracks the latest main-branch build.
 #
 # Runs from the repo root regardless of where it was invoked, because the
 # apps/site/Dockerfile expects the monorepo as its build context (it COPYs
@@ -19,7 +20,7 @@ GIT_HASH=$(git rev-parse --short HEAD)
 
 GHCR_DOMAIN="ghcr.io"
 GHCR_OWNER="1router"
-IMAGE_NAME="1router-frontend"
+IMAGE_NAME="1router-site"
 FULL_IMAGE_NAME="${GHCR_DOMAIN}/${GHCR_OWNER}/${IMAGE_NAME}"
 
 echo "Building ${FULL_IMAGE_NAME} from ${REPO_ROOT}"
@@ -30,27 +31,28 @@ docker build \
   -f apps/site/Dockerfile \
   -t "${FULL_IMAGE_NAME}:${VERSION}" \
   -t "${FULL_IMAGE_NAME}:${VERSION}-${GIT_HASH}" \
-  -t "${FULL_IMAGE_NAME}:latest" \
+  -t "${FULL_IMAGE_NAME}:main" \
   .
 
 echo
 echo "Tags applied:"
 echo "  ${FULL_IMAGE_NAME}:${VERSION}"
 echo "  ${FULL_IMAGE_NAME}:${VERSION}-${GIT_HASH}"
-echo "  ${FULL_IMAGE_NAME}:latest"
+echo "  ${FULL_IMAGE_NAME}:main"
 
 echo
 echo "Pushing to ${GHCR_DOMAIN}..."
 docker push "${FULL_IMAGE_NAME}:${VERSION}"
 docker push "${FULL_IMAGE_NAME}:${VERSION}-${GIT_HASH}"
-docker push "${FULL_IMAGE_NAME}:latest"
+docker push "${FULL_IMAGE_NAME}:main"
 
 cat <<EOF
 
-✓ Done. To upgrade the deployment:
+✓ Done. The deployment pulls ${FULL_IMAGE_NAME}:main with imagePullPolicy: Always,
+so kubelet picks up the new image on every pod restart. To force a redeploy
+without restarting the pod yourself (rolling update):
 
-  kubectl -n 1router set image deployment/1router-frontend \\
-    1router-frontend=${FULL_IMAGE_NAME}:${VERSION}-${GIT_HASH}
+  kubectl -n 1router rollout restart deployment/1router-frontend
 
 Or, to start from scratch, apply the manifests in numeric order:
 
