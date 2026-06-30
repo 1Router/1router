@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: 1router-frontend
+  name: 1router
   namespace: 1router
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -20,6 +20,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: 1router-frontend
+            name: 1router
             port:
               number: 80

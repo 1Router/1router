@@ -5,8 +5,8 @@
 #
 # Build context: repo root.
 # Usage:
-#   docker build -f apps/site/Dockerfile -t 1router-site .
-#   docker run --rm -p 3000:3000 1router-site
+#   docker build -f apps/site/Dockerfile -t 1router .
+#   docker run --rm -p 3000:3000 1router
 
 # ─── Stage 1: install + build ──────────────────────────────
 # Pin to oven/bun:1.3 (matches the bun that generated bun.lock on the host).

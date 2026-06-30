@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: 1router-frontend
+  name: 1router
   namespace: 1router
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: 1router-frontend
+      app: 1router
   template:
     metadata:
       labels:
-        app: 1router-frontend
+        app: 1router
     spec:
       containers:
-      - name: 1router-frontend
-        image: ghcr.io/1router/1router-site:main
+      - name: 1router
+        image: ghcr.io/1router/1router:main
         imagePullPolicy: Always
         ports:
         - containerPort: 3000

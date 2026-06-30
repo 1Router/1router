@@ -65,7 +65,7 @@ export function Footer() {
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} 1Router, Inc. Released under{' '}
             <a
-              href="https://github.com/1Router/1router-site/blob/main/LICENSE"
+              href="https://github.com/1Router/1router/blob/main/LICENSE"
               target="_blank"
               rel="noreferrer"
               className="font-medium text-foreground hover:underline"

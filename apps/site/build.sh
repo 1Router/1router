@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds and pushes the 1Router site image to GHCR (ghcr.io/1router/1router-site).
+# Builds and pushes the 1Router site image to GHCR (ghcr.io/1router/1router).
 # Image is tagged :main so the deployment always tracks the latest main-branch build.
 #
 # Runs from the repo root regardless of where it was invoked, because the
@@ -20,7 +20,7 @@ GIT_HASH=$(git rev-parse --short HEAD)
 
 GHCR_DOMAIN="ghcr.io"
 GHCR_OWNER="1router"
-IMAGE_NAME="1router-site"
+IMAGE_NAME="1router"
 FULL_IMAGE_NAME="${GHCR_DOMAIN}/${GHCR_OWNER}/${IMAGE_NAME}"
 
 echo "Building ${FULL_IMAGE_NAME} from ${REPO_ROOT}"
@@ -52,7 +52,7 @@ cat <<EOF
 so kubelet picks up the new image on every pod restart. To force a redeploy
 without restarting the pod yourself (rolling update):
 
-  kubectl -n 1router rollout restart deployment/1router-frontend
+  kubectl -n 1router rollout restart deployment/1router
 
 Or, to start from scratch, apply the manifests in numeric order:
 
