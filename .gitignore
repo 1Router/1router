@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# monorepo additions
+
+# Turborepo
+/.turbo/
+
+# Rust target + the catalog that build.rs generates
+/apps/api/target/
+/apps/api/catalog/
+
+# Bun/Pnpm caches at the workspace root
+/.bun/
+
