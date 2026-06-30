@@ -12,5 +12,8 @@
   },
   "scripts": {
     "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5"
   }
 }
