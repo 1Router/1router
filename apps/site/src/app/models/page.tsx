@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Grid, List, SlidersHorizontal, X, Check } from 'lucide-react';
+import { Search, Grid, List, SlidersHorizontal, X, Check, ArrowDownUp, ChevronDown } from 'lucide-react';
 import { models, providers, seriesList, modalityOptions, modelUrl, providerColors, type Model } from '@1router/models';
 import { cn } from '@/lib/utils';
 
@@ -132,18 +132,44 @@ function FilterCheckbox({
     <button
       type="button"
       onClick={onChange}
-      className="flex w-full cursor-pointer items-center gap-2.5 py-1 text-left"
+      className="flex min-h-[44px] w-full cursor-pointer items-center gap-2.5 rounded-md py-2.5 pl-1 pr-2 text-left transition-colors hover:bg-secondary/40 active:bg-secondary/60"
     >
       <div
         className={cn(
-          'flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors',
-          checked ? 'border-primary bg-primary text-primary-foreground' : 'border-border'
+          'flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors',
+          checked ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background'
         )}
       >
-        {checked && <Check className="h-3 w-3" />}
+        {checked && <Check className="h-3.5 w-3.5" />}
       </div>
       <span className="text-sm text-muted-foreground">{label}</span>
     </button>
+  );
+}
+
+function SortField({
+  sortBy,
+  onChange,
+}: {
+  sortBy: SortValue;
+  onChange: (v: SortValue) => void;
+}) {
+  return (
+    <div className="relative">
+      <ArrowDownUp className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <select
+        value={sortBy}
+        onChange={(e) => onChange(e.target.value as SortValue)}
+        className="w-full appearance-none rounded-lg border border-border bg-secondary/30 py-3 pl-10 pr-10 text-sm outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/30 min-h-[44px]"
+      >
+        {sortOptions.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+    </div>
   );
 }
 
@@ -156,7 +182,6 @@ export default function ModelsPage() {
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [selectedSeries, setSelectedSeries] = useState<string[]>([]);
   const [selectedModalities, setSelectedModalities] = useState<string[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
 
   const toggleProvider = (p: string) =>
     setSelectedProviders((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
@@ -208,8 +233,37 @@ export default function ModelsPage() {
     }
   }, [filterQuery, contextLength, maxPrice, selectedProviders, selectedSeries, selectedModalities, sortBy]);
 
-  const sidebar = (
+  // Mobile filter sheet — a true <dialog> that slides up from the bottom on
+  // phones and appears as a centered modal on sm+. Backdrop-tap closes it.
+  const filterDialogRef = useRef<HTMLDialogElement>(null);
+  const openFilters = () => filterDialogRef.current?.showModal();
+  const closeFilters = () => filterDialogRef.current?.close();
+
+  useEffect(() => {
+    const dialog = filterDialogRef.current;
+    if (!dialog) return;
+    const handleClick = (e: MouseEvent) => {
+      const rect = dialog.getBoundingClientRect();
+      const inside =
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom;
+      if (!inside) dialog.close();
+    };
+    dialog.addEventListener('click', handleClick);
+    return () => dialog.removeEventListener('click', handleClick);
+  }, []);
+
+  // Shared filter body — used by both the desktop sidebar and the mobile sheet.
+  const filterBody = (
     <div className="space-y-6">
+      {/* Sort by — only on the mobile sheet; desktop has the sort in the toolbar */}
+      <div className="lg:hidden">
+        <h3 className="mb-3 text-sm font-semibold">Sort by</h3>
+        <SortField sortBy={sortBy} onChange={setSortBy} />
+      </div>
+
       {/* Providers */}
       <div>
         <h3 className="mb-3 text-sm font-semibold">Providers</h3>
@@ -298,8 +352,8 @@ export default function ModelsPage() {
   return (
     <div className="container py-8">
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
+      <div className="mb-8 flex items-center justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold tracking-tight">Models</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {filteredModels.length} of {models.length} models
@@ -308,7 +362,7 @@ export default function ModelsPage() {
         {activeFilterCount > 0 && (
           <button
             onClick={resetFilters}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg border border-border px-3 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           >
             <X className="h-3.5 w-3.5" />
             Reset ({activeFilterCount})
@@ -317,31 +371,32 @@ export default function ModelsPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[260px_1fr]">
-        {/* Desktop filters */}
+        {/* Desktop filters (sticky) */}
         <aside className="hidden lg:block">
           <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin pr-2">
-            {sidebar}
+            {filterBody}
           </div>
         </aside>
 
         {/* Main content */}
         <div>
-          {/* Search + sort + view toggle */}
+          {/* Toolbar: search + filters + sort (lg+) + view toggle */}
           <div className="mb-6 flex flex-wrap items-center gap-3">
-            <div className="relative flex-1">
+            <div className="relative min-w-0 flex-1 basis-full sm:basis-auto">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search models, providers, descriptions…"
-                className="w-full rounded-lg border border-border bg-secondary/30 py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/30"
+                className="w-full rounded-lg border border-border bg-secondary/30 py-2.5 pl-10 pr-4 text-base outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/30"
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
               />
             </div>
 
             <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-medium transition-colors hover:bg-secondary lg:hidden"
+              type="button"
+              onClick={openFilters}
+              className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary lg:hidden"
             >
               <SlidersHorizontal className="h-4 w-4" />
               Filters
@@ -352,32 +407,28 @@ export default function ModelsPage() {
               )}
             </button>
 
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortValue)}
-              className="rounded-lg border border-border bg-secondary/30 px-3 py-2.5 text-sm outline-none transition-colors hover:bg-secondary"
-            >
-              {sortOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+            <div className="hidden shrink-0 lg:block">
+              <SortField sortBy={sortBy} onChange={setSortBy} />
+            </div>
 
-            <div className="flex items-center gap-0.5 rounded-lg border border-border p-0.5">
+            <div className="ml-auto flex shrink-0 items-center gap-0.5 rounded-lg border border-border p-0.5">
               <button
+                type="button"
                 onClick={() => setViewMode('list')}
+                aria-label="List view"
                 className={cn(
-                  'rounded-md p-2 transition-colors',
+                  'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md transition-colors',
                   viewMode === 'list' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 <List className="h-4 w-4" />
               </button>
               <button
+                type="button"
                 onClick={() => setViewMode('grid')}
+                aria-label="Grid view"
                 className={cn(
-                  'rounded-md p-2 transition-colors',
+                  'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md transition-colors',
                   viewMode === 'grid' ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
@@ -386,21 +437,15 @@ export default function ModelsPage() {
             </div>
           </div>
 
-          {/* Mobile filters drawer */}
-          {showFilters && (
-            <div className="mb-6 rounded-xl border border-border/60 bg-card p-5 lg:hidden">
-              {sidebar}
-            </div>
-          )}
-
           {/* Results */}
           {filteredModels.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20 text-center">
               <p className="text-lg font-medium">No models found</p>
               <p className="mt-1 text-sm text-muted-foreground">Try adjusting your filters</p>
               <button
+                type="button"
                 onClick={resetFilters}
-                className="mt-4 rounded-lg border border-border px-4 py-2 text-sm transition-colors hover:bg-secondary"
+                className="mt-4 inline-flex min-h-[44px] items-center rounded-lg border border-border px-4 text-sm transition-colors hover:bg-secondary"
               >
                 Reset filters
               </button>
@@ -420,6 +465,62 @@ export default function ModelsPage() {
           )}
         </div>
       </div>
+
+      {/* Mobile filter bottom-sheet — only rendered when the dialog is opened
+          (on lg+ this stays display:none and never opens). */}
+      <dialog
+        ref={filterDialogRef}
+        aria-label="Filter models"
+        className="m-0 h-[100dvh] max-h-[100dvh] w-full max-w-full border-0 bg-background p-0 backdrop:bg-black/45 sm:m-auto sm:h-[85vh] sm:max-w-md sm:rounded-2xl sm:border sm:border-border sm:shadow-2xl lg:hidden"
+      >
+        <div className="flex h-[100dvh] max-h-[100dvh] flex-col overflow-hidden sm:h-full">
+          {/* Sticky header */}            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background px-5 py-4">
+            <div>
+              <h2 className="text-base font-semibold">Filters</h2>
+              {activeFilterCount > 0 && (
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {activeFilterCount} active · {filteredModels.length} of {models.length} match
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={closeFilters}
+              aria-label="Close filters"
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Scrollable body */}
+          <div className="flex-1 overflow-y-auto px-5 py-5 scrollbar-thin">
+            {filterBody}
+          </div>
+
+          {/* Sticky footer */}            <div className="sticky bottom-0 z-10 flex items-center gap-2 border-t border-border bg-background px-5 py-4">
+            {activeFilterCount > 0 ? (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-lg border border-border text-sm font-medium transition-colors hover:bg-secondary"
+              >
+                <X className="h-4 w-4" />
+                Clear all
+              </button>
+            ) : (
+              <div className="flex-1" />
+            )}
+            <button
+              type="button"
+              onClick={closeFilters}
+              className="inline-flex min-h-[44px] flex-[2] items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              Show {filteredModels.length} {filteredModels.length === 1 ? 'model' : 'models'}
+            </button>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }

@@ -171,7 +171,7 @@ export default async function ProviderPage({
         </div>
         <Link
           href="/chat"
-          className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 self-start rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:self-auto"
         >
           Try in Chat
           <ArrowRight className="h-4 w-4" />

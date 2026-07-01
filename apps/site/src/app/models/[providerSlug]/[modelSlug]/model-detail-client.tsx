@@ -80,7 +80,7 @@ function CodeBlock({ code, lang }: { code: string; lang: CodeTabId }) {
         </span>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          className="flex min-h-[40px] items-center gap-1.5 rounded-md px-2.5 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
           {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
           {copied ? 'Copied' : 'Copy'}
@@ -120,7 +120,7 @@ export function ModelDetailClient({ model }: { model: Model }) {
       icon: Globe,
       label: 'Modalities',
       value: model.modality.length.toString(),
-      sub: model.modality.join(', '),
+      sub: model.modality.join(', ') || '—',
     },
   ];
 
@@ -179,7 +179,7 @@ export function ModelDetailClient({ model }: { model: Model }) {
         <div className="flex shrink-0 items-center gap-2">
           <Link
             href="/chat"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 self-start rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:self-auto"
           >
             <MessageSquare className="h-4 w-4" />
             Try in Chat
@@ -237,7 +237,7 @@ export function ModelDetailClient({ model }: { model: Model }) {
                     {spec.label}
                   </div>
                   <div className="text-xl font-bold">{spec.value}</div>
-                  <div className="mt-0.5 truncate text-xs text-muted-foreground" title={spec.sub}>
+                  <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground" title={spec.sub}>
                     {spec.sub}
                   </div>
                 </div>
@@ -289,11 +289,13 @@ export function ModelDetailClient({ model }: { model: Model }) {
             </p>
 
             {/* Model ID */}
-            <div className="mb-4 flex items-center gap-2 rounded-lg border border-border/60 bg-secondary/30 px-4 py-2.5">
+            <div className="mb-4 flex items-center gap-2 rounded-lg border border-border/60 bg-secondary/30 px-4 py-3">
               <code className="text-sm font-mono font-medium">{model.id}</code>
               <button
+                type="button"
                 onClick={() => navigator.clipboard.writeText(model.id)}
-                className="ml-auto text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="Copy model ID"
+                className="ml-auto inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >
                 <Copy className="h-4 w-4" />
               </button>
@@ -306,7 +308,7 @@ export function ModelDetailClient({ model }: { model: Model }) {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    'rounded-md px-4 py-1.5 text-sm font-medium transition-all',
+                    'min-h-[40px] rounded-md px-4 py-2.5 text-sm font-medium transition-all',
                     activeTab === tab.id
                       ? 'bg-background text-foreground shadow-sm'
                       : 'text-muted-foreground hover:text-foreground'

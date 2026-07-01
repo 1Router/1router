@@ -83,7 +83,7 @@ export function AppShowcase() {
               key={tab.period}
               onClick={() => setActiveTab(tab.period)}
               className={cn(
-                "rounded-md px-4 py-1.5 text-sm font-medium transition-all",
+                "min-h-[40px] rounded-md px-4 py-2.5 text-sm font-medium transition-all",
                 activeTab === tab.period
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -100,28 +100,28 @@ export function AppShowcase() {
             <Link
               key={app.name}
               href={app.href}
-              className="group flex items-center justify-between rounded-xl border border-transparent p-4 transition-all hover:border-border/60 hover:bg-secondary/40"
+              className="group flex flex-col gap-3 rounded-xl border border-transparent p-4 transition-all hover:border-border/60 hover:bg-secondary/40 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
             >
-              <div className="flex items-center gap-4">
-                <span className="w-6 text-right text-sm font-medium text-muted-foreground">
+              <div className="flex min-w-0 items-center gap-4">
+                <span className="w-6 shrink-0 text-right text-sm font-medium text-muted-foreground">
                   {i + 1}
                 </span>
                 <div
                   className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-xl text-base font-bold",
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-bold",
                     app.color
                   )}
                 >
                   {app.letter}
                 </div>
-                <div>
-                  <h3 className="font-medium leading-tight transition-colors group-hover:text-primary">
+                <div className="min-w-0">
+                  <h3 className="truncate font-medium leading-tight transition-colors group-hover:text-primary">
                     {app.name}
                   </h3>
-                  <p className="text-sm text-muted-foreground">{app.description}</p>
+                  <p className="line-clamp-2 text-sm text-muted-foreground sm:line-clamp-1">{app.description}</p>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="text-right sm:shrink-0">
                 <div className="font-semibold">
                   {app.tokens[activeTab as keyof typeof app.tokens]}
                 </div>
