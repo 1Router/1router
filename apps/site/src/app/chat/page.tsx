@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Paperclip, Send, Plus, MessageSquare, Cpu } from 'lucide-react';
+import { Paperclip, Send, Plus, MessageSquare, Cpu, SlidersHorizontal, X } from 'lucide-react';
 import { models, providerColors } from '@1router/models';
 import { cn } from '@/lib/utils';
 
@@ -65,6 +65,21 @@ export default function ChatPage() {
     'openai/gpt-4o',
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pickerRef = useRef<HTMLDialogElement>(null);
+
+  // Tap on the dimmer (outside the picker's box) closes it.
+  useEffect(() => {
+    const dlg = pickerRef.current;
+    if (!dlg) return;
+    const onClick = (e: MouseEvent) => {
+      const r = dlg.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) {
+        dlg.close();
+      }
+    };
+    dlg.addEventListener('click', onClick);
+    return () => dlg.removeEventListener('click', onClick);
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -106,89 +121,113 @@ export default function ChatPage() {
     });
   };
 
+  const closePicker = () => pickerRef.current?.close();
+  const openPicker = () => pickerRef.current?.showModal();
+
   const getModelById = (id: string) => models.find((m) => m.id === id);
+
+  // Shared rendering for the model picker (used by desktop sidebar AND mobile drawer).
+  const renderCategoryList = () => (
+    <>
+      {categories.map((cat) => (
+        <div key={cat.title} className="mb-6">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {cat.title}
+          </h2>
+          <div className="space-y-1">
+            {cat.modelIds.map((id) => {
+              const model = getModelById(id);
+              if (!model) return null;
+              const active = activeModels.includes(id);
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => toggleModel(id)}
+                  aria-pressed={active}
+                  className={cn(
+                    'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-left transition-colors',
+                    active ? 'bg-primary/10 ring-1 ring-primary/30' : 'hover:bg-secondary'
+                  )}
+                >
+                  <div
+                    className={cn(
+                      'flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-bold',
+                      providerColors[model.providerSlug] || 'bg-secondary text-muted-foreground'
+                    )}
+                  >
+                    {model.provider.charAt(0)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium">{model.name}</div>
+                    <div className="truncate text-xs text-muted-foreground">{model.provider}</div>
+                  </div>
+                  {active && (
+                    <div className="h-2 w-2 shrink-0 rounded-full bg-primary" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </>
+  );
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
-      {/* Sidebar */}
+      {/* Desktop sidebar */}
       <aside className="hidden w-72 shrink-0 border-r border-border/60 bg-card/50 md:flex md:flex-col">
         <div className="p-4">
-          <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+          <button className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
             <Plus className="h-4 w-4" />
             New Chat
           </button>
         </div>
-
         <div className="flex-1 overflow-y-auto scrollbar-thin px-4 pb-4">
-          {categories.map((cat) => (
-            <div key={cat.title} className="mb-6">
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {cat.title}
-              </h2>
-              <div className="space-y-1">
-                {cat.modelIds.map((id) => {
-                  const model = getModelById(id);
-                  if (!model) return null;
-                  const active = activeModels.includes(id);
-                  return (
-                    <button
-                      key={id}
-                      onClick={() => toggleModel(id)}
-                      className={cn(
-                        'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors',
-                        active ? 'bg-primary/10 ring-1 ring-primary/30' : 'hover:bg-secondary'
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          'flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-bold',
-                          providerColors[model.providerSlug] || 'bg-secondary text-muted-foreground'
-                        )}
-                      >
-                        {model.provider.charAt(0)}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{model.name}</div>
-                        <div className="truncate text-xs text-muted-foreground">{model.provider}</div>
-                      </div>
-                      {active && (
-                        <div className="h-2 w-2 shrink-0 rounded-full bg-primary" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+          {renderCategoryList()}
         </div>
       </aside>
 
       {/* Chat area */}
       <div className="flex flex-1 flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
-          <div className="flex items-center gap-2">
-            <Cpu className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">
+        <div className="flex items-center justify-between gap-2 border-b border-border/60 px-4 py-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <Cpu className="h-4 w-4 shrink-0 text-primary" />
+            <span className="truncate text-sm font-medium">
               {activeModels.length} model{activeModels.length !== 1 ? 's' : ''} active
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            {activeModels.map((id) => {
-              const model = getModelById(id);
-              if (!model) return null;
-              return (
-                <span
-                  key={id}
-                  className={cn(
-                    'rounded-md px-2 py-0.5 text-xs font-medium',
-                    providerColors[model.providerSlug] || 'bg-secondary'
-                  )}
-                >
-                  {model.name}
-                </span>
-              );
-            })}
+          <div className="flex shrink-0 items-center gap-2">
+            {/* Desktop: horizontally-scrollable model chips */}
+            <div className="hidden max-w-[60vw] items-center gap-2 overflow-x-auto scrollbar-thin md:flex">
+              {activeModels.map((id) => {
+                const model = getModelById(id);
+                if (!model) return null;
+                return (
+                  <span
+                    key={id}
+                    className={cn(
+                      'shrink-0 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap',
+                      providerColors[model.providerSlug] || 'bg-secondary'
+                    )}
+                  >
+                    {model.name}
+                  </span>
+                );
+              })}
+            </div>
+            {/* Mobile: Models drawer trigger */}
+            <button
+              type="button"
+              onClick={openPicker}
+              aria-label="Choose models"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-border/60 bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary md:hidden"
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              Models
+            </button>
           </div>
         </div>
 
@@ -248,7 +287,11 @@ export default function ChatPage() {
         <div className="border-t border-border/60 p-4">
           <div className="mx-auto max-w-3xl">
             <div className="flex items-end gap-2 rounded-xl border border-border bg-card p-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30">
-              <button className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
+              <button
+                type="button"
+                aria-label="Attach"
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              >
                 <Paperclip className="h-5 w-5" />
               </button>
               <textarea
@@ -262,14 +305,17 @@ export default function ChatPage() {
                     handleSend();
                   }
                 }}
-                className="flex-1 resize-none bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground"
+                inputMode="text"
+                className="min-h-[44px] flex-1 resize-none bg-transparent py-2.5 text-base outline-none placeholder:text-muted-foreground"
                 style={{ maxHeight: '120px' }}
               />
               <button
+                type="button"
                 onClick={handleSend}
                 disabled={!input.trim() || activeModels.length === 0}
+                aria-label="Send message"
                 className={cn(
-                  'shrink-0 rounded-lg p-2 transition-all',
+                  'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-all',
                   input.trim() && activeModels.length > 0
                     ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                     : 'text-muted-foreground'
@@ -284,6 +330,37 @@ export default function ChatPage() {
           </div>
         </div>
       </div>
+
+      {/* Mobile model picker drawer */}
+      <dialog
+        ref={pickerRef}
+        aria-label="Choose models"
+        className="fixed inset-y-0 right-0 m-0 flex h-full w-80 max-w-full flex-col border-l border-border bg-background p-0 text-foreground shadow-2xl translate-x-full transition-transform duration-200 ease-out open:translate-x-0 md:hidden"
+      >
+        <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">
+          <h2 className="text-base font-semibold">Choose models</h2>
+          <button
+            type="button"
+            onClick={closePicker}
+            aria-label="Close model picker"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto scrollbar-thin px-4 pb-4 pt-2">
+          {renderCategoryList()}
+        </div>
+        <div className="border-t border-border/60 px-5 py-4">
+          <button
+            type="button"
+            onClick={closePicker}
+            className="flex min-h-[44px] w-full items-center justify-center rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Done ({activeModels.length} selected)
+          </button>
+        </div>
+      </dialog>
     </div>
   );
 }
