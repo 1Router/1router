@@ -72,9 +72,22 @@
   * {
     @apply border-border;
   }
+  html,
+  body {
+    /* Belt-and-braces safety net against any stray 1–2px overflow that would
+       otherwise make the page horizontally scrollable on phones. */
+    overflow-x: clip;
+  }
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Native <dialog> backdrop styling for the mobile Nav drawer and
+     /chat model-picker drawer. Keeps the dimmer on-brand. */
+  dialog::backdrop {
+    background-color: rgb(0 0 0 / 0.45);
+    backdrop-filter: blur(4px);
   }
 }
 
@@ -93,5 +106,23 @@
   .scrollbar-thin::-webkit-scrollbar-thumb {
     background-color: hsl(var(--border));
     border-radius: 3px;
+  }
+
+  /* CSS-only scroll-progress bar used by /pitch.
+     Uses the modern `animation-timeline: scroll(root)` API; degrades to a
+     zero-width hidden bar in browsers without support. */
+  @keyframes pitch-progress { to { transform: scaleX(1); } }
+  .pitch-progress-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: hsl(var(--primary));
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: pitch-progress linear forwards;
+    animation-timeline: scroll(root);
+    z-index: 60;
+    pointer-events: none;
+    will-change: transform;
   }
 }

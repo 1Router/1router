@@ -24,6 +24,7 @@ const footerLinks = [
     title: "Company",
     links: [
       { label: "About", href: "/about" },
+      { label: "Pitch", href: "/pitch" },
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
     ],
