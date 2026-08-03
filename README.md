@@ -43,7 +43,7 @@ This repository is a **monorepo** containing two deployed services and one share
 ```bash
 bun install                       # install workspace deps
 bun run dev:site                  # → http://localhost:3000
-bun run dev:api                   # → http://localhost:3000  (cargo run)
+bun run dev:api                   # → http://localhost:3001  (BIND_ADDR=0.0.0.0:3001 cargo run)
 bun run build                     # builds site (turbo) + api (cargo --release)
 bun run lint                      # lint everything
 ```

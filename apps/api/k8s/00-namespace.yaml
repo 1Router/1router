@@ -1,0 +1,7 @@
+# The API shares the same namespace as the site (see apps/site/k8s/00-namespace.yaml).
+# If you already applied that, this file is a no-op. It's here so the API
+# manifests can be applied independently.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: 1router

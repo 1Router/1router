@@ -1,0 +1,3150 @@
+{
+  "schema": "1router-models/v1",
+  "description": "Open model catalog for 1Router — a unified, OpenAI-compatible API for all AI models",
+  "license": "MIT",
+  "lastGenerated": "2026-06-30",
+  "providers": [
+    "Abacus.AI",
+    "Anthropic",
+    "ByteDance",
+    "DeepSeek",
+    "Google",
+    "Meta",
+    "Microsoft",
+    "MiniMax",
+    "Mistral AI",
+    "Moonshot AI",
+    "NVIDIA",
+    "NeverSleep",
+    "Nous Research",
+    "OpenAI",
+    "Perplexity",
+    "Qwen",
+    "Sarvam AI",
+    "StepFun AI",
+    "Stockmark",
+    "Upstage",
+    "Z.ai",
+    "xAI"
+  ],
+  "series": [
+    "Claude",
+    "Cosmos",
+    "DeepSeek",
+    "Dracarys",
+    "ESM",
+    "GLM",
+    "GPT",
+    "GPT-OSS",
+    "Gemini",
+    "Gemma",
+    "Grok",
+    "Hermes",
+    "Kimi",
+    "Llama",
+    "Llama Guard",
+    "Lumimaid",
+    "MiniMax",
+    "Mistral",
+    "Mixtral",
+    "NVIDIA",
+    "Nemotron",
+    "PaliGemma",
+    "Phi",
+    "Qwen",
+    "Riva",
+    "Sarvam",
+    "Seed",
+    "Solar",
+    "Sonar",
+    "Step",
+    "Stockmark",
+    "o-series"
+  ],
+  "modalities": [
+    "audio→audio",
+    "audio→text",
+    "code→text",
+    "image+text→text",
+    "image→video",
+    "text→audio",
+    "text→text",
+    "text→video",
+    "video→text"
+  ],
+  "capabilities": [
+    "text-generation",
+    "chat",
+    "function-calling",
+    "json-mode",
+    "vision",
+    "code",
+    "reasoning",
+    "roleplay",
+    "web-search",
+    "audio",
+    "agentic",
+    "safety",
+    "content-moderation",
+    "embeddings",
+    "translation",
+    "tts",
+    "video-generation",
+    "multilingual",
+    "biology",
+    "reranking",
+    "retrieval"
+  ],
+  "models": [
+    {
+      "id": "minimaxai/minimax-m3",
+      "name": "MiniMax M3",
+      "provider": "MiniMax",
+      "providerSlug": "minimaxai",
+      "description": "MiniMax M3 Preview is a multimodal MoE vision-language model with strong reasoning, coding, and tool-calling capabilities.",
+      "contextLength": 1000000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning",
+        "function-calling",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "MiniMax",
+      "releaseDate": "2026-06-12",
+      "freeEndpoint": true,
+      "apiCalls30d": "6M",
+      "tags": [
+        "coding",
+        "reasoning",
+        "tool-calling"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "minimaxai/minimax-m2.7",
+      "name": "MiniMax M2.7",
+      "provider": "MiniMax",
+      "providerSlug": "minimaxai",
+      "description": "MiniMax M2.7 is a 230B-parameter text-to-text AI model excelling in coding, reasoning, and office tasks.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "MiniMax",
+      "releaseDate": "2026-04-11",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "14M",
+      "tags": [
+        "reasoning",
+        "coding"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "google/diffusiongemma-26b-a4b-it",
+      "name": "DiffusionGemma 26B",
+      "provider": "Google",
+      "providerSlug": "google",
+      "description": "Diffusion-based 26B parameter LLM enabling parallel token generation for real-time text apps.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Gemma",
+      "releaseDate": "2026-06-10",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "3M",
+      "tags": [
+        "diffusion-llm",
+        "text-generation"
+      ],
+      "license": "gemma"
+    },
+    {
+      "id": "google/gemma-4-31b-it",
+      "name": "Gemma 4 31B",
+      "provider": "Google",
+      "providerSlug": "google",
+      "description": "Dense 31B model delivering frontier reasoning for coding, agentic workflows, and fine-tuning.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Gemma",
+      "releaseDate": "2026-04-02",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "5M",
+      "tags": [
+        "reasoning",
+        "coding",
+        "agentic"
+      ],
+      "license": "gemma"
+    },
+    {
+      "id": "google/gemma-3n-e4b-it",
+      "name": "Gemma 3n E4B",
+      "provider": "Google",
+      "providerSlug": "google",
+      "description": "An edge computing AI model which accepts text, audio and image input, ideal for resource-constrained environments.",
+      "contextLength": 32768,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "vision",
+        "audio"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text",
+        "audio→text"
+      ],
+      "series": "Gemma",
+      "releaseDate": "2025-07-15",
+      "freeEndpoint": true,
+      "apiCalls30d": "4M",
+      "tags": [
+        "language-generation",
+        "edge",
+        "multimodal"
+      ],
+      "license": "gemma"
+    },
+    {
+      "id": "google/gemma-3n-e2b-it",
+      "name": "Gemma 3n E2B",
+      "provider": "Google",
+      "providerSlug": "google",
+      "description": "An edge computing AI model which accepts text, audio and image input, ideal for resource-constrained environments.",
+      "contextLength": 32768,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "vision",
+        "audio"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text",
+        "audio→text"
+      ],
+      "series": "Gemma",
+      "releaseDate": "2025-07-15",
+      "freeEndpoint": true,
+      "apiCalls30d": "34M",
+      "tags": [
+        "language-generation",
+        "edge",
+        "multimodal"
+      ],
+      "license": "gemma"
+    },
+    {
+      "id": "google/gemma-2-2b-it",
+      "name": "Gemma 2 2B",
+      "provider": "Google",
+      "providerSlug": "google",
+      "description": "Advanced small language generative AI model for edge applications.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Gemma",
+      "releaseDate": "2025-05-22",
+      "freeEndpoint": true,
+      "apiCalls30d": "1M",
+      "tags": [
+        "chat",
+        "small-model"
+      ],
+      "license": "gemma"
+    },
+    {
+      "id": "google/paligemma",
+      "name": "PaliGemma",
+      "provider": "Google",
+      "providerSlug": "google",
+      "description": "Vision language model adept at comprehending text and visual inputs to produce informative responses.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "vision"
+      ],
+      "modality": [
+        "image+text→text"
+      ],
+      "series": "PaliGemma",
+      "releaseDate": "2024-08-26",
+      "freeEndpoint": true,
+      "apiCalls30d": "10K",
+      "tags": [
+        "image",
+        "vision-language"
+      ],
+      "license": "gemma"
+    },
+    {
+      "id": "nvidia/nemotron-3-ultra-550b-a55b",
+      "name": "Nemotron 3 Ultra 550B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Open, efficient hybrid Mamba-Transformer MoE with 1M context, excelling in agentic reasoning, coding, planning, tool calling, and more.",
+      "contextLength": 1000000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning",
+        "function-calling",
+        "agentic"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2026-06-04",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "8M",
+      "tags": [
+        "agent",
+        "coding",
+        "reasoning",
+        "tool-calling",
+        "MoE"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/nemotron-3-super-120b-a12b",
+      "name": "Nemotron 3 Super 120B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Open, efficient hybrid Mamba-Transformer MoE with 1M context, excelling in agentic reasoning, coding, planning, tool calling, and more.",
+      "contextLength": 1000000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning",
+        "function-calling",
+        "agentic"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2026-03-11",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "60M",
+      "tags": [
+        "MoE",
+        "agent",
+        "coding",
+        "reasoning",
+        "tool-calling"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/nemotron-3-nano-30b-a3b",
+      "name": "Nemotron 3 Nano 30B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Open, efficient MoE model with 1M context, excelling in coding, reasoning, instruction following, tool calling, and more.",
+      "contextLength": 1000000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning",
+        "function-calling"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2025-12-15",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "13M",
+      "tags": [
+        "MoE",
+        "coding",
+        "reasoning",
+        "tool-calling"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "name": "Nemotron 3 Nano Omni 30B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Nemotron 3 Nano Omni is an omni-modal reasoning model that understands images, video, speech, text.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "vision",
+        "audio"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text",
+        "audio→text",
+        "video→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2026-04-28",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "8M",
+      "tags": [
+        "image-to-text",
+        "video-understanding",
+        "speech",
+        "reasoning"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/nemotron-3-content-safety",
+      "name": "Nemotron 3 Content Safety",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Multilingual, multimodal model for detecting unsafe and toxic content.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "safety",
+        "content-moderation"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2026-04-16",
+      "freeEndpoint": true,
+      "apiCalls30d": "230K",
+      "tags": [
+        "llm-safety",
+        "content-moderation"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/nemotron-3.5-content-safety",
+      "name": "Nemotron 3.5 Content Safety",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Multilingual, multimodal model for detecting unsafe and toxic content.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "safety",
+        "content-moderation"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2026-06-02",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "2M",
+      "tags": [
+        "llm-safety",
+        "content-moderation"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/nemotron-content-safety-reasoning-4b",
+      "name": "Nemotron Content Safety Reasoning 4B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "A context-aware safety model that applies reasoning to enforce domain-specific policies.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "safety",
+        "content-moderation",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2026-01-22",
+      "freeEndpoint": true,
+      "apiCalls30d": "145K",
+      "tags": [
+        "nemo-guardrails",
+        "safety",
+        "reasoning"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/llama-3.1-nemotron-safety-guard-8b-v3",
+      "name": "Llama 3.1 Nemotron Safety Guard 8B v3",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Leading multilingual content safety model for enhancing the safety and moderation capabilities of LLMs.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "safety",
+        "content-moderation"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2025-10-28",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "336K",
+      "tags": [
+        "content-moderation",
+        "safety",
+        "multilingual"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/nemotron-voicechat",
+      "name": "Nemotron VoiceChat",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Nemotron 3 Voicechat — real-time voice conversation AI.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "chat",
+        "audio",
+        "speech"
+      ],
+      "modality": [
+        "audio→text",
+        "text→audio"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2026-03-16",
+      "freeEndpoint": true,
+      "apiCalls30d": "2K",
+      "tags": [
+        "english",
+        "voice",
+        "real-time"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/nemotron-mini-4b-instruct",
+      "name": "Nemotron Mini 4B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Optimized SLM for on-device inference and fine-tuned for roleplay, RAG and function calling.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "roleplay"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2024-08-26",
+      "freeEndpoint": true,
+      "apiCalls30d": "2M",
+      "tags": [
+        "chat",
+        "roleplay",
+        "rag",
+        "small-model"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/nvidia-nemotron-nano-9b-v2",
+      "name": "Nemotron Nano 9B v2",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "High-efficiency LLM with hybrid Transformer-Mamba design, excelling in reasoning and agentic tasks.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "agentic"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2025-08-18",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "988K",
+      "tags": [
+        "thinking-budget",
+        "reasoning",
+        "agentic"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/nemotron-nano-12b-v2-vl",
+      "name": "Nemotron Nano 12B v2 VL",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Nemotron Nano 12B v2 VL enables multi-image and video understanding, along with visual Q&A and summarization capabilities.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "vision",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text",
+        "video→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2025-10-28",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "2M",
+      "tags": [
+        "language-generation",
+        "video-understanding",
+        "vision"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/llama-3.3-nemotron-super-49b-v1",
+      "name": "Llama 3.3 Nemotron Super 49B v1",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "High efficiency model with leading accuracy for reasoning, tool calling, chat, and instruction following.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "function-calling"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2025-07-20",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "5M",
+      "tags": [
+        "advanced-reasoning",
+        "tool-calling",
+        "chat"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+      "name": "Llama 3.3 Nemotron Super 49B v1.5",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "High efficiency model with leading accuracy for reasoning, tool calling, chat, and instruction following.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "function-calling"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2025-07-25",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "3M",
+      "tags": [
+        "advanced-reasoning",
+        "tool-calling",
+        "chat"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/llama-3.1-nemotron-nano-8b-v1",
+      "name": "Llama 3.1 Nemotron Nano 8B v1",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Leading reasoning and agentic AI accuracy model for PC and edge.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "agentic"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2025-06-27",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "1M",
+      "tags": [
+        "advanced-reasoning",
+        "agentic",
+        "edge"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+      "name": "Llama 3.1 Nemotron Nano VL 8B v1",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Multi-modal vision-language model that understands text/img and creates informative responses.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2025-07-01",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "10M",
+      "tags": [
+        "doc-intelligence",
+        "vision",
+        "multimodal"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/cosmos3-nano",
+      "name": "Cosmos 3 Nano",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Generates physics-aware videos from text prompts or an image prompt for physical AI development.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "video-generation"
+      ],
+      "modality": [
+        "text→video",
+        "image→video"
+      ],
+      "series": "Cosmos",
+      "releaseDate": "2026-06-01",
+      "freeEndpoint": true,
+      "apiCalls30d": "2K",
+      "tags": [
+        "autonomous-vehicles",
+        "video-generation",
+        "physics-aware"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/cosmos3-nano-reasoner",
+      "name": "Cosmos 3 Nano Reasoner",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Vision language model that excels in understanding the physical world using structured reasoning on videos or images.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "vision",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text",
+        "video→text"
+      ],
+      "series": "Cosmos",
+      "releaseDate": "2026-06-01",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "2K",
+      "tags": [
+        "video-understanding",
+        "reasoning",
+        "physics-aware"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/cosmos-transfer2-5-2b",
+      "name": "Cosmos Transfer 2.5 2B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Generates physics-aware video world states for physical AI development using text prompts and multiple spatial control inputs derived from real-world data or simulation.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "video-generation"
+      ],
+      "modality": [
+        "text→video",
+        "image→video"
+      ],
+      "series": "Cosmos",
+      "releaseDate": "2026-02-25",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "250",
+      "tags": [
+        "synthetic-data-generation",
+        "video-generation",
+        "physics-aware"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/cosmos-transfer1-7b",
+      "name": "Cosmos Transfer 1 7B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Generates physics-aware video world states for physical AI development using text prompts and multiple spatial control inputs derived from real-world data or simulation.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "video-generation"
+      ],
+      "modality": [
+        "text→video",
+        "image→video"
+      ],
+      "series": "Cosmos",
+      "releaseDate": "2025-06-30",
+      "freeEndpoint": true,
+      "apiCalls30d": "250",
+      "tags": [
+        "synthetic-data-generation",
+        "video-generation",
+        "physics-aware"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/synthetic-video-detector",
+      "name": "Synthetic Video Detector",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "NVIDIA Synthetic Video Detector is an AI-powered micro-service for detecting AI-generated (synthetic) videos.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "video-detection",
+        "safety"
+      ],
+      "modality": [
+        "video→text"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2026-04-16",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "90K",
+      "tags": [
+        "broadcast",
+        "deepfake-detection",
+        "safety"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/active-speaker-detection",
+      "name": "Active Speaker Detection",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Detect and track speaker identities across video frames.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "video-analysis",
+        "audio"
+      ],
+      "modality": [
+        "video→text",
+        "audio→text"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2026-04-16",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "473",
+      "tags": [
+        "broadcast",
+        "speaker-detection",
+        "video-analysis"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/ising-calibration-1-35b-a3b",
+      "name": "Ising Calibration 1 35B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Open VLM for quantum computer calibration chart understanding across a range of qubit modalities.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "vision",
+        "reasoning"
+      ],
+      "modality": [
+        "image+text→text"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2026-04-14",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "332K",
+      "tags": [
+        "quantum",
+        "calibration",
+        "vision"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/gliner-pii",
+      "name": "GLiNER PII",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "GLiNER PII detects Personally Identifiable Information in text.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "pii-detection",
+        "safety"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2026-03-03",
+      "freeEndpoint": true,
+      "apiCalls30d": "243K",
+      "tags": [
+        "pii-detection",
+        "safety",
+        "ner"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/streampetr",
+      "name": "StreamPETR",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "StreamPETR offers efficient 3D object detection for autonomous driving by propagating sparse object queries temporally.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "object-detection",
+        "video-analysis"
+      ],
+      "modality": [
+        "video→text"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2025-11-13",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "250",
+      "tags": [
+        "autonomous-vehicles",
+        "3d-detection",
+        "perception"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/sparsedrive",
+      "name": "SparseDrive",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "End-to-end autonomous driving stack integrating perception, prediction, and planning with sparse scene representations for efficiency and safety.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "autonomous-driving",
+        "perception",
+        "planning"
+      ],
+      "modality": [
+        "video→text"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2025-07-20",
+      "freeEndpoint": true,
+      "apiCalls30d": "76",
+      "tags": [
+        "autonomous-vehicles",
+        "end-to-end-driving",
+        "perception"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/bevformer",
+      "name": "BEVFormer",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Advanced transformer for multi-frame bird's-eye-view 3D perception in autonomous driving.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "object-detection",
+        "video-analysis"
+      ],
+      "modality": [
+        "video→text"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2025-07-20",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "115",
+      "tags": [
+        "autonomous-vehicles",
+        "bev",
+        "3d-perception"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/riva-translate-4b-instruct-v1-1",
+      "name": "Riva Translate 4B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Translation model in 12 languages with few-shots example prompts capability.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "translation"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Riva",
+      "releaseDate": "2025-12-12",
+      "freeEndpoint": true,
+      "apiCalls30d": "282K",
+      "tags": [
+        "nvidia-nim",
+        "translation",
+        "multilingual"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/magpie-tts-zeroshot",
+      "name": "Magpie TTS Zero-shot",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Expressive and engaging text-to-speech, generated from a short audio sample.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "tts",
+        "audio"
+      ],
+      "modality": [
+        "text→audio"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2025-06-12",
+      "freeEndpoint": true,
+      "apiCalls30d": "26K",
+      "tags": [
+        "tts",
+        "voice-cloning",
+        "audio"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/bnr",
+      "name": "Background Noise Removal",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Removes unwanted noises from audio improving speech intelligibility.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "audio-enhancement"
+      ],
+      "modality": [
+        "audio→audio"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2025-06-13",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "556",
+      "tags": [
+        "denoising",
+        "audio-enhancement",
+        "speech"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/studiovoice",
+      "name": "Studio Voice",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Enhance input speech recorded with low-quality microphones in noisy or reverberant environments, producing studio-quality speech.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "audio-enhancement"
+      ],
+      "modality": [
+        "audio→audio"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2025-06-13",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "1K",
+      "tags": [
+        "broadcast",
+        "audio-enhancement",
+        "speech-enhancement"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/nv-embed-v1",
+      "name": "NV-Embed v1",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Generates high-quality numerical embeddings from text inputs.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "embeddings"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2025-07-22",
+      "freeEndpoint": true,
+      "apiCalls30d": "4M",
+      "tags": [
+        "non-commercial-use-only",
+        "embeddings",
+        "retrieval"
+      ],
+      "license": "non-commercial"
+    },
+    {
+      "id": "nvidia/nv-embedcode-7b-v1",
+      "name": "NV-EmbedCode 7B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "The NV-EmbedCode model is a 7B Mistral-based embedding model optimized for code retrieval, supporting text, code, and hybrid queries.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "embeddings",
+        "code"
+      ],
+      "modality": [
+        "text→text",
+        "code→text"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2025-05-29",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "1M",
+      "tags": [
+        "nemo-retriever",
+        "code-embeddings",
+        "retrieval"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/rerank-qa-mistral-4b",
+      "name": "Rerank QA Mistral 4B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "GPU-accelerated model optimized for providing a probability score that a given passage contains the information to answer a question.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "reranking",
+        "retrieval"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2025-01-17",
+      "freeEndpoint": true,
+      "apiCalls30d": "483K",
+      "tags": [
+        "ranking",
+        "reranking",
+        "retrieval"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "moonshotai/kimi-k2.6",
+      "name": "Kimi K2.6",
+      "provider": "Moonshot AI",
+      "providerSlug": "moonshotai",
+      "description": "1T multimodal MoE for long-horizon coding, agentic tool use, and image/video understanding.",
+      "contextLength": 2000000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "vision",
+        "agentic",
+        "function-calling"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text",
+        "video→text"
+      ],
+      "series": "Kimi",
+      "releaseDate": "2026-05-01",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "15M",
+      "tags": [
+        "multimodal",
+        "coding",
+        "agentic",
+        "MoE"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "stepfun-ai/step-3.7-flash",
+      "name": "Step 3.7 Flash",
+      "provider": "StepFun AI",
+      "providerSlug": "stepfun-ai",
+      "description": "A sparse MoE multimodal reasoning model good for enterprise, agentic and coding tasks.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning",
+        "agentic"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Step",
+      "releaseDate": "2026-05-28",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "4M",
+      "tags": [
+        "coding",
+        "agentic",
+        "MoE"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "stepfun-ai/step-3.5-flash",
+      "name": "Step 3.5 Flash",
+      "provider": "StepFun AI",
+      "providerSlug": "stepfun-ai",
+      "description": "200B open-source reasoning engine with sparse MoE powering frontier agentic AI.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "agentic"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Step",
+      "releaseDate": "2026-02-01",
+      "freeEndpoint": true,
+      "apiCalls30d": "12M",
+      "tags": [
+        "agentic",
+        "reasoning",
+        "MoE"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "z-ai/glm-5.1",
+      "name": "GLM-5.1",
+      "provider": "Z.ai",
+      "providerSlug": "z-ai",
+      "description": "GLM-5.1 is a flagship LLM for agentic workflows, coding, and long-horizon reasoning tasks.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning",
+        "agentic",
+        "function-calling"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "GLM",
+      "releaseDate": "2026-04-17",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "28M",
+      "tags": [
+        "agentic-ai",
+        "coding",
+        "reasoning"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "deepseek-ai/deepseek-v4-flash",
+      "name": "DeepSeek V4 Flash",
+      "provider": "DeepSeek",
+      "providerSlug": "deepseek-ai",
+      "description": "DeepSeek V4 Flash is a 284B MoE model with 1M-token context optimized for fast coding and agents.",
+      "contextLength": 1000000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "agentic",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "DeepSeek",
+      "releaseDate": "2026-04-24",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "15M",
+      "tags": [
+        "MoE",
+        "coding",
+        "agents"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "deepseek-ai/deepseek-v4-pro",
+      "name": "DeepSeek V4 Pro",
+      "provider": "DeepSeek",
+      "providerSlug": "deepseek-ai",
+      "description": "DeepSeek V4 scales to 1M-token context windows with efficient MoE architecture for coding tasks.",
+      "contextLength": 1000000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "DeepSeek",
+      "releaseDate": "2026-04-24",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "8M",
+      "tags": [
+        "MoE",
+        "coding",
+        "long-context"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "qwen/qwen3.5-122b-a10b",
+      "name": "Qwen 3.5 122B",
+      "provider": "Qwen",
+      "providerSlug": "qwen",
+      "description": "122B MoE LLM (10B active) for coding, reasoning, multimodal chat. Agent-ready.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning",
+        "function-calling",
+        "agentic",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Qwen",
+      "releaseDate": "2026-03-05",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "10M",
+      "tags": [
+        "tool-calling",
+        "MoE",
+        "coding",
+        "multimodal"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "qwen/qwen3.5-397b-a17b",
+      "name": "Qwen 3.5 397B",
+      "provider": "Qwen",
+      "providerSlug": "qwen",
+      "description": "Next-gen Qwen 3.5 VLM (400B MoE) brings advanced vision, chat, RAG, and agentic capabilities.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning",
+        "vision",
+        "agentic"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Qwen",
+      "releaseDate": "2026-02-16",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "13M",
+      "tags": [
+        "MoE",
+        "vision",
+        "rag",
+        "agentic"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "qwen/qwen3-next-80b-a3b-instruct",
+      "name": "Qwen 3 Next 80B",
+      "provider": "Qwen",
+      "providerSlug": "qwen",
+      "description": "Qwen3-Next Instruct blends hybrid attention, sparse MoE, and stability boosts for ultra-long context AI.",
+      "contextLength": 256000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Qwen",
+      "releaseDate": "2025-09-22",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "27M",
+      "tags": [
+        "text-generation",
+        "long-context",
+        "MoE"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "mistralai/mistral-medium-3.5-128b",
+      "name": "Mistral Medium 3.5 128B",
+      "provider": "Mistral AI",
+      "providerSlug": "mistralai",
+      "description": "A high performing model for text generation, coding and agentic use cases.",
+      "contextLength": 128000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "agentic"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Mistral",
+      "releaseDate": "2026-04-29",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "4M",
+      "tags": [
+        "coding",
+        "agentic",
+        "text-generation"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "mistralai/mistral-small-4-119b-2603",
+      "name": "Mistral Small 4 119B",
+      "provider": "Mistral AI",
+      "providerSlug": "mistralai",
+      "description": "Hybrid MoE model unifying instruct, reasoning, and coding with multimodal input and 256k context.",
+      "contextLength": 256000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Mistral",
+      "releaseDate": "2026-03-16",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "13M",
+      "tags": [
+        "code-generation",
+        "reasoning",
+        "MoE",
+        "multimodal"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "mistralai/mistral-large-3-675b-instruct-2512",
+      "name": "Mistral Large 3 675B",
+      "provider": "Mistral AI",
+      "providerSlug": "mistralai",
+      "description": "A state-of-the-art general purpose MoE VLM ideal for chat, agentic and instruction based use cases.",
+      "contextLength": 128000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "agentic",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Mistral",
+      "releaseDate": "2025-12-02",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "3M",
+      "tags": [
+        "language-generation",
+        "agentic",
+        "MoE",
+        "vlm"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "mistralai/ministral-14b-instruct-2512",
+      "name": "Ministral 14B",
+      "provider": "Mistral AI",
+      "providerSlug": "mistralai",
+      "description": "A general purpose VLM ideal for chat and instruction based use cases.",
+      "contextLength": 128000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Mistral",
+      "releaseDate": "2025-12-02",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "4M",
+      "tags": [
+        "language-generation",
+        "chat",
+        "vlm"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "mistralai/mistral-nemotron",
+      "name": "Mistral Nemotron",
+      "provider": "Mistral AI",
+      "providerSlug": "mistralai",
+      "description": "Built for agentic workflows, this model excels in coding, instruction following, and function calling.",
+      "contextLength": 128000,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "agentic",
+        "function-calling"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Mistral",
+      "releaseDate": "2025-06-11",
+      "freeEndpoint": true,
+      "apiCalls30d": "1M",
+      "tags": [
+        "language-generation",
+        "agentic",
+        "function-calling"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "mistralai/mixtral-8x7b-instruct-v0.1",
+      "name": "Mixtral 8x7B Instruct v0.1",
+      "provider": "Mistral AI",
+      "providerSlug": "mistralai",
+      "description": "An MOE LLM that follows instructions, completes requests, and generates creative text.",
+      "contextLength": 32768,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Mixtral",
+      "releaseDate": "2025-07-18",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "996K",
+      "tags": [
+        "advanced-reasoning",
+        "MoE",
+        "instruction-following"
+      ],
+      "license": "apache-2.0"
+    },
+    {
+      "id": "openai/gpt-oss-120b",
+      "name": "GPT-OSS 120B",
+      "provider": "OpenAI",
+      "providerSlug": "openai",
+      "description": "Mixture of Experts (MoE) reasoning LLM (text-only) designed to fit within 80GB GPU.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "code"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "GPT-OSS",
+      "releaseDate": "2025-08-05",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "57M",
+      "tags": [
+        "reasoning",
+        "MoE",
+        "math"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "openai/gpt-oss-20b",
+      "name": "GPT-OSS 20B",
+      "provider": "OpenAI",
+      "providerSlug": "openai",
+      "description": "Smaller Mixture of Experts (MoE) text-only LLM for efficient AI reasoning and math.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "code"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "GPT-OSS",
+      "releaseDate": "2025-08-05",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "18M",
+      "tags": [
+        "reasoning",
+        "MoE",
+        "math",
+        "small-model"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "meta/llama-4-maverick-17b-128e-instruct",
+      "name": "Llama 4 Maverick 17B",
+      "provider": "Meta",
+      "providerSlug": "meta",
+      "description": "A general purpose multimodal, multilingual 128 MoE model with 17B parameters.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "vision",
+        "multilingual"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Llama",
+      "releaseDate": "2025-07-17",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "20M",
+      "tags": [
+        "language-generation",
+        "multimodal",
+        "multilingual",
+        "MoE"
+      ],
+      "license": "llama"
+    },
+    {
+      "id": "meta/llama-3.3-70b-instruct",
+      "name": "Llama 3.3 70B Instruct",
+      "provider": "Meta",
+      "providerSlug": "meta",
+      "description": "Advanced LLM for reasoning, math, general knowledge, and function calling.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "function-calling"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Llama",
+      "releaseDate": "2025-06-12",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "19M",
+      "tags": [
+        "instruction-following",
+        "reasoning",
+        "function-calling"
+      ],
+      "license": "llama"
+    },
+    {
+      "id": "meta/llama-3.2-90b-vision-instruct",
+      "name": "Llama 3.2 90B Vision",
+      "provider": "Meta",
+      "providerSlug": "meta",
+      "description": "Cutting-edge vision-language model exceling in high-quality reasoning from images.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "vision",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Llama",
+      "releaseDate": "2025-05-30",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "3M",
+      "tags": [
+        "image-text-retrieval",
+        "vision",
+        "reasoning"
+      ],
+      "license": "llama"
+    },
+    {
+      "id": "meta/llama-3.2-11b-vision-instruct",
+      "name": "Llama 3.2 11B Vision",
+      "provider": "Meta",
+      "providerSlug": "meta",
+      "description": "Cutting-edge vision-language model exceling in high-quality reasoning from images.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "vision",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Llama",
+      "releaseDate": "2025-05-30",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "2M",
+      "tags": [
+        "image-text-retrieval",
+        "vision",
+        "reasoning"
+      ],
+      "license": "llama"
+    },
+    {
+      "id": "meta/llama-3.2-3b-instruct",
+      "name": "Llama 3.2 3B Instruct",
+      "provider": "Meta",
+      "providerSlug": "meta",
+      "description": "Advanced state-of-the-art small language model with language understanding, superior reasoning, and text generation.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Llama",
+      "releaseDate": "2025-05-22",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "1M",
+      "tags": [
+        "language-generation",
+        "small-model",
+        "reasoning"
+      ],
+      "license": "llama"
+    },
+    {
+      "id": "meta/llama-3.2-1b-instruct",
+      "name": "Llama 3.2 1B Instruct",
+      "provider": "Meta",
+      "providerSlug": "meta",
+      "description": "Advanced state-of-the-art small language model with language understanding, superior reasoning, and text generation.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Llama",
+      "releaseDate": "2025-05-21",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "290K",
+      "tags": [
+        "code-generation",
+        "small-model",
+        "edge"
+      ],
+      "license": "llama"
+    },
+    {
+      "id": "meta/llama-3.1-70b-instruct",
+      "name": "Llama 3.1 70B Instruct",
+      "provider": "Meta",
+      "providerSlug": "meta",
+      "description": "Powers complex conversations with superior contextual understanding, reasoning and text generation.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "function-calling"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Llama",
+      "releaseDate": "2025-06-12",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "4M",
+      "tags": [
+        "chat",
+        "reasoning",
+        "instruction-following"
+      ],
+      "license": "llama"
+    },
+    {
+      "id": "meta/llama-3.1-8b-instruct",
+      "name": "Llama 3.1 8B Instruct",
+      "provider": "Meta",
+      "providerSlug": "meta",
+      "description": "Advanced state-of-the-art model with language understanding, superior reasoning, and text generation.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "function-calling"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Llama",
+      "releaseDate": "2025-07-09",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "25M",
+      "tags": [
+        "chat",
+        "reasoning",
+        "instruction-following"
+      ],
+      "license": "llama"
+    },
+    {
+      "id": "meta/llama-guard-4-12b",
+      "name": "Llama Guard 4 12B",
+      "provider": "Meta",
+      "providerSlug": "meta",
+      "description": "Multi-modal model to classify safety for input prompts as well output responses.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "safety",
+        "content-moderation",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Llama Guard",
+      "releaseDate": "2025-06-30",
+      "freeEndpoint": true,
+      "apiCalls30d": "222K",
+      "tags": [
+        "llm-multimodal-safety",
+        "content-moderation"
+      ],
+      "license": "llama"
+    },
+    {
+      "id": "meta/esm2-650m",
+      "name": "ESM2 650M",
+      "provider": "Meta",
+      "providerSlug": "meta",
+      "description": "Generates embeddings of proteins from their amino acid sequences.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "embeddings",
+        "biology"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "ESM",
+      "releaseDate": "2025-03-10",
+      "freeEndpoint": true,
+      "apiCalls30d": "128K",
+      "tags": [
+        "nim",
+        "biology",
+        "protein-embeddings"
+      ],
+      "license": "mit"
+    },
+    {
+      "id": "meta/esmfold",
+      "name": "ESMFold",
+      "provider": "Meta",
+      "providerSlug": "meta",
+      "description": "Predicts the 3D structure of a protein from its amino acid sequence.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "protein-folding",
+        "biology"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "ESM",
+      "releaseDate": "2025-06-12",
+      "freeEndpoint": true,
+      "apiCalls30d": "566K",
+      "tags": [
+        "biology",
+        "protein-folding",
+        "structure-prediction"
+      ],
+      "license": "mit"
+    },
+    {
+      "id": "bytedance/seed-oss-36b-instruct",
+      "name": "Seed OSS 36B",
+      "provider": "ByteDance",
+      "providerSlug": "bytedance",
+      "description": "ByteDance open-source LLM with long-context, reasoning, and agentic intelligence.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "agentic"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Seed",
+      "releaseDate": "2025-09-05",
+      "freeEndpoint": true,
+      "apiCalls30d": "1M",
+      "tags": [
+        "thinking-budget",
+        "reasoning",
+        "agentic"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "microsoft/phi-4-mini-instruct",
+      "name": "Phi-4 Mini",
+      "provider": "Microsoft",
+      "providerSlug": "microsoft",
+      "description": "Lightweight multilingual LLM powering AI applications in latency bound, memory/compute constrained environments.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "multilingual"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Phi",
+      "releaseDate": "2025-05-22",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "445K",
+      "tags": [
+        "chat",
+        "small-model",
+        "multilingual",
+        "edge"
+      ],
+      "license": "mit"
+    },
+    {
+      "id": "microsoft/phi-4-multimodal-instruct",
+      "name": "Phi-4 Multimodal",
+      "provider": "Microsoft",
+      "providerSlug": "microsoft",
+      "description": "Cutting-edge open multimodal model exceling in high-quality reasoning from image and audio inputs.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "vision",
+        "audio",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text",
+        "audio→text"
+      ],
+      "series": "Phi",
+      "releaseDate": "2025-05-23",
+      "freeEndpoint": true,
+      "apiCalls30d": "244K",
+      "tags": [
+        "speech-recognition",
+        "multimodal",
+        "vision",
+        "audio"
+      ],
+      "license": "mit"
+    },
+    {
+      "id": "upstage/solar-10.7b-instruct",
+      "name": "Solar 10.7B Instruct",
+      "provider": "Upstage",
+      "providerSlug": "upstage",
+      "description": "Excels in NLP tasks, particularly in instruction-following, reasoning, and mathematics.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Solar",
+      "releaseDate": "2025-04-09",
+      "freeEndpoint": true,
+      "apiCalls30d": "449K",
+      "tags": [
+        "non-commercial-use-only",
+        "reasoning",
+        "math"
+      ],
+      "license": "non-commercial"
+    },
+    {
+      "id": "abacusai/dracarys-llama-3.1-70b-instruct",
+      "name": "Dracarys Llama 3.1 70B",
+      "provider": "Abacus.AI",
+      "providerSlug": "abacusai",
+      "description": "Fine-tuned Llama 3.1 70B model for code generation, summarization, and multi-language tasks.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Dracarys",
+      "releaseDate": "2025-05-22",
+      "freeEndpoint": true,
+      "apiCalls30d": "783K",
+      "tags": [
+        "code-generation",
+        "summarization"
+      ],
+      "license": "llama"
+    },
+    {
+      "id": "stockmark/stockmark-2-100b-instruct",
+      "name": "Stockmark 2 100B",
+      "provider": "Stockmark",
+      "providerSlug": "stockmark",
+      "description": "Japanese-specialized large-language-model for enterprises to read and understand complex business documents.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "multilingual"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Stockmark",
+      "releaseDate": "2025-09-24",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "2M",
+      "tags": [
+        "sovereign-ai",
+        "japanese",
+        "enterprise"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "sarvamai/sarvam-m",
+      "name": "Sarvam M",
+      "provider": "Sarvam AI",
+      "providerSlug": "sarvamai",
+      "description": "Multilingual, hybrid-reasoning model optimized for Indian language tasks, programming, mathematical reasoning capabilities.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning",
+        "multilingual"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Sarvam",
+      "releaseDate": "2025-07-25",
+      "downloadable": true,
+      "freeEndpoint": true,
+      "apiCalls30d": "236K",
+      "tags": [
+        "coding",
+        "indian-languages",
+        "reasoning",
+        "sovereign-ai"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "openai/gpt-4o",
+      "name": "GPT-4o",
+      "provider": "OpenAI",
+      "providerSlug": "openai",
+      "description": "Multimodal flagship model with vision, audio, and text capabilities. Faster and cheaper than GPT-4 Turbo.",
+      "contextLength": 128000,
+      "pricing": {
+        "input": 2.5,
+        "output": 10
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "json-mode",
+        "vision",
+        "code"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "GPT",
+      "releaseDate": "2024-05-13",
+      "trending": true
+    },
+    {
+      "id": "openai/gpt-4o-mini",
+      "name": "GPT-4o Mini",
+      "provider": "OpenAI",
+      "providerSlug": "openai",
+      "description": "Affordable, intelligent small model for fast, lightweight tasks. Supports vision and function calling.",
+      "contextLength": 128000,
+      "pricing": {
+        "input": 0.15,
+        "output": 0.6
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "json-mode",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "GPT",
+      "releaseDate": "2024-07-18",
+      "trending": true
+    },
+    {
+      "id": "openai/o3-mini",
+      "name": "o3-mini",
+      "provider": "OpenAI",
+      "providerSlug": "openai",
+      "description": "Reasoning model optimized for STEM and coding. Delivers high capability at a fraction of o1 pricing.",
+      "contextLength": 200000,
+      "pricing": {
+        "input": 1.1,
+        "output": 4.4
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "reasoning",
+        "code"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "o-series",
+      "releaseDate": "2025-01-31",
+      "trending": true
+    },
+    {
+      "id": "openai/o1",
+      "name": "o1",
+      "provider": "OpenAI",
+      "providerSlug": "openai",
+      "description": "Frontier reasoning model that thinks before answering. Excels at complex math, science, and coding.",
+      "contextLength": 200000,
+      "pricing": {
+        "input": 15,
+        "output": 60
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "code",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "o-series",
+      "releaseDate": "2024-12-05"
+    },
+    {
+      "id": "openai/gpt-4-turbo",
+      "name": "GPT-4 Turbo",
+      "provider": "OpenAI",
+      "providerSlug": "openai",
+      "description": "Previous-generation flagship with 128K context. Strong general-purpose model with vision support.",
+      "contextLength": 128000,
+      "pricing": {
+        "input": 10,
+        "output": 30
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "json-mode",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "GPT",
+      "releaseDate": "2024-04-09"
+    },
+    {
+      "id": "openai/gpt-3.5-turbo",
+      "name": "GPT-3.5 Turbo",
+      "provider": "OpenAI",
+      "providerSlug": "openai",
+      "description": "Fast, inexpensive model for simple tasks. Good for classification, summarization, and basic chat.",
+      "contextLength": 16385,
+      "pricing": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "GPT",
+      "releaseDate": "2023-06-13"
+    },
+    {
+      "id": "anthropic/claude-3.7-sonnet",
+      "name": "Claude 3.7 Sonnet",
+      "provider": "Anthropic",
+      "providerSlug": "anthropic",
+      "description": "Most intelligent Claude model with extended thinking mode. Best for complex reasoning, coding, and agentic tasks.",
+      "contextLength": 200000,
+      "pricing": {
+        "input": 3,
+        "output": 15
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "vision",
+        "code",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Claude",
+      "releaseDate": "2025-02-24",
+      "trending": true
+    },
+    {
+      "id": "anthropic/claude-3.5-haiku",
+      "name": "Claude 3.5 Haiku",
+      "provider": "Anthropic",
+      "providerSlug": "anthropic",
+      "description": "Fast, affordable model with strong performance. Great for high-volume, latency-sensitive workloads.",
+      "contextLength": 200000,
+      "pricing": {
+        "input": 0.8,
+        "output": 4
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "vision",
+        "code"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Claude",
+      "releaseDate": "2024-11-04",
+      "trending": true
+    },
+    {
+      "id": "anthropic/claude-3-opus",
+      "name": "Claude 3 Opus",
+      "provider": "Anthropic",
+      "providerSlug": "anthropic",
+      "description": "Powerful model for highly complex tasks. Top-tier performance on reasoning, analysis, and creative writing.",
+      "contextLength": 200000,
+      "pricing": {
+        "input": 15,
+        "output": 75
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Claude",
+      "releaseDate": "2024-03-04"
+    },
+    {
+      "id": "anthropic/claude-3-sonnet",
+      "name": "Claude 3 Sonnet",
+      "provider": "Anthropic",
+      "providerSlug": "anthropic",
+      "description": "Balanced model for enterprise workloads. Good balance of speed and intelligence.",
+      "contextLength": 200000,
+      "pricing": {
+        "input": 3,
+        "output": 15
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Claude",
+      "releaseDate": "2024-03-04"
+    },
+    {
+      "id": "google/gemini-2.0-flash",
+      "name": "Gemini 2.0 Flash",
+      "provider": "Google",
+      "providerSlug": "google",
+      "description": "Fast, capable multimodal model with native tool use, spatial understanding, and real-time audio/video.",
+      "contextLength": 1000000,
+      "pricing": {
+        "input": 0.1,
+        "output": 0.4
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "vision",
+        "code",
+        "audio"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text",
+        "audio→text"
+      ],
+      "series": "Gemini",
+      "releaseDate": "2025-02-05",
+      "trending": true
+    },
+    {
+      "id": "google/gemini-2.0-flash-thinking",
+      "name": "Gemini 2.0 Flash Thinking",
+      "provider": "Google",
+      "providerSlug": "google",
+      "description": "Reasoning variant of Gemini 2.0 Flash with visible thought process. Excels at complex multi-step problems.",
+      "contextLength": 1000000,
+      "pricing": {
+        "input": 0.1,
+        "output": 0.4
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "vision",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Gemini",
+      "releaseDate": "2025-01-27",
+      "trending": true
+    },
+    {
+      "id": "google/gemini-1.5-pro",
+      "name": "Gemini 1.5 Pro",
+      "provider": "Google",
+      "providerSlug": "google",
+      "description": "Mid-generation multimodal model with 2M token context. Strong at long-document and video understanding.",
+      "contextLength": 2000000,
+      "pricing": {
+        "input": 1.25,
+        "output": 5
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "vision",
+        "code"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Gemini",
+      "releaseDate": "2024-02-15"
+    },
+    {
+      "id": "google/gemini-1.5-flash",
+      "name": "Gemini 1.5 Flash",
+      "provider": "Google",
+      "providerSlug": "google",
+      "description": "Fast and versatile model across modalities. Optimized for high-volume, cost-sensitive tasks.",
+      "contextLength": 1000000,
+      "pricing": {
+        "input": 0.075,
+        "output": 0.3
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "Gemini",
+      "releaseDate": "2024-02-15"
+    },
+    {
+      "id": "x-ai/grok-3",
+      "name": "Grok 3",
+      "provider": "xAI",
+      "providerSlug": "xai",
+      "description": "Frontier model from xAI with real-time knowledge access. Strong at math, reasoning, and coding.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 3,
+        "output": 15
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "code",
+        "reasoning"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Grok",
+      "releaseDate": "2025-02-18",
+      "trending": true
+    },
+    {
+      "id": "x-ai/grok-3-mini",
+      "name": "Grok 3 Mini",
+      "provider": "xAI",
+      "providerSlug": "xai",
+      "description": "Reasoning-focused mini model. Faster and cheaper than Grok 3 while maintaining strong reasoning capability.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0.3,
+        "output": 0.5
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "code"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Grok",
+      "releaseDate": "2025-02-18"
+    },
+    {
+      "id": "deepseek/deepseek-r1",
+      "name": "DeepSeek R1",
+      "provider": "DeepSeek",
+      "providerSlug": "deepseek-ai",
+      "description": "Open-weight reasoning model rivalling o1 at a fraction of the cost. Excellent for math and coding.",
+      "contextLength": 64000,
+      "pricing": {
+        "input": 0.55,
+        "output": 2.19
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "code"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "DeepSeek",
+      "releaseDate": "2025-01-20",
+      "trending": true
+    },
+    {
+      "id": "deepseek/deepseek-v3",
+      "name": "DeepSeek V3",
+      "provider": "DeepSeek",
+      "providerSlug": "deepseek-ai",
+      "description": "671B parameter Mixture-of-Experts model with 37B active. Strong general-purpose performance at low cost.",
+      "contextLength": 64000,
+      "pricing": {
+        "input": 0.27,
+        "output": 1.1
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "code"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "DeepSeek",
+      "releaseDate": "2024-12-26"
+    },
+    {
+      "id": "qwen/qwq-32b",
+      "name": "QwQ 32B",
+      "provider": "Qwen",
+      "providerSlug": "qwen",
+      "description": "Reasoning model from Alibaba with strong math and coding performance. Open-weight and cost-effective.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0.15,
+        "output": 0.2
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "reasoning",
+        "code"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Qwen",
+      "releaseDate": "2024-12-25",
+      "trending": true
+    },
+    {
+      "id": "qwen/qwen-2.5-72b-instruct",
+      "name": "Qwen 2.5 72B Instruct",
+      "provider": "Qwen",
+      "providerSlug": "qwen",
+      "description": "Versatile multilingual model with 72B parameters. Strong at code generation and multilingual tasks.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0.23,
+        "output": 0.4
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "code"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Qwen",
+      "releaseDate": "2024-11-28"
+    },
+    {
+      "id": "qwen/qwen-2.5-coder-32b-instruct",
+      "name": "Qwen 2.5 Coder 32B",
+      "provider": "Qwen",
+      "providerSlug": "qwen",
+      "description": "Code-specialized model matching GPT-4o on coding benchmarks. Supports 29+ programming languages.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0.1,
+        "output": 0.16
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Qwen",
+      "releaseDate": "2024-11-28"
+    },
+    {
+      "id": "minimax/minimax-01",
+      "name": "MiniMax-01",
+      "provider": "MiniMax",
+      "providerSlug": "minimaxai",
+      "description": "Large Mixture-of-Experts model with 456B parameters and 45.9B active. Massive 1M token context window.",
+      "contextLength": 1000000,
+      "pricing": {
+        "input": 0.2,
+        "output": 1.1
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "vision"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "MiniMax",
+      "releaseDate": "2025-01-15",
+      "trending": true
+    },
+    {
+      "id": "nousresearch/hermes-3-llama-3.1-405b",
+      "name": "Hermes 3 405B",
+      "provider": "Nous Research",
+      "providerSlug": "nousresearch",
+      "description": "Fine-tune of Llama 3.1 405B with enhanced roleplay, creative writing, and agentic capabilities.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0.8,
+        "output": 0.9
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "function-calling",
+        "roleplay"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Hermes",
+      "releaseDate": "2024-08-20"
+    },
+    {
+      "id": "neversleep/llama-3-lumimaid-8b",
+      "name": "Llama 3 Lumimaid 8B",
+      "provider": "NeverSleep",
+      "providerSlug": "neversleep",
+      "description": "Llama 3 8B fine-tune trained on curated roleplay data. Excellent for creative and conversational use.",
+      "contextLength": 24576,
+      "pricing": {
+        "input": 0.035,
+        "output": 0.045
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "roleplay"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Lumimaid",
+      "releaseDate": "2024-05-10"
+    },
+    {
+      "id": "perplexity/sonar-pro",
+      "name": "Sonar Pro",
+      "provider": "Perplexity",
+      "providerSlug": "perplexity",
+      "description": "Online model with real-time web search. Returns cited answers with up-to-date information.",
+      "contextLength": 200000,
+      "pricing": {
+        "input": 3,
+        "output": 15
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "web-search"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Sonar",
+      "releaseDate": "2025-02-14"
+    }
+  ]
+}
