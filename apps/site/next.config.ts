@@ -14,4 +14,8 @@ const config: NextConfig = {
   transpilePackages: ['@1router/models'],
 };
 
+// The chat API key is intentionally server-only. Browser requests use the
+// same-origin /api/chat route, which forwards to the Rust API.
+// ROUTER_API_URL and ROUTER_API_KEY are read at server runtime.
+
 export default config;

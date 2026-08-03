@@ -13,11 +13,19 @@ spec:
       labels:
         app: site
     spec:
-      containers:
-      - name: site
-        image: ghcr.io/1router/site:main
-        imagePullPolicy: Always
-        ports:
+      containers:        - name: site
+          image: ghcr.io/1router/site:main
+          imagePullPolicy: Always
+          env:
+          - name: ROUTER_API_URL
+            value: "https://api.1router.com"
+          - name: ROUTER_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: api-secrets
+                key: router-api-key
+          ports:
+
         - containerPort: 3000
         resources:
           requests:

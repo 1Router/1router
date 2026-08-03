@@ -20,6 +20,7 @@ const endpoints = [
   {
     method: "POST",
     path: "/v1/chat/completions",
+    status: "available",
     description: "Create a chat completion with any model",
     params: [
       { name: "model", type: "string", required: true, desc: "Model ID, e.g. openai/gpt-4o" },
@@ -33,7 +34,8 @@ const endpoints = [
   {
     method: "POST",
     path: "/v1/completions",
-    description: "Create a text completion (legacy)",
+    status: "roadmap",
+    description: "Legacy text completions (planned; chat completions are available now)",
     params: [
       { name: "model", type: "string", required: true, desc: "Model ID" },
       { name: "prompt", type: "string", required: true, desc: "Input text" },
@@ -43,13 +45,15 @@ const endpoints = [
   {
     method: "GET",
     path: "/v1/models",
+    status: "available",
     description: "List all available models",
     params: [],
   },
   {
     method: "POST",
     path: "/v1/embeddings",
-    description: "Generate text embeddings",
+    status: "roadmap",
+    description: "Generate text embeddings (planned)",
     params: [
       { name: "model", type: "string", required: true, desc: "Embedding model ID" },
       { name: "input", type: "string", required: true, desc: "Text to embed" },
@@ -58,7 +62,8 @@ const endpoints = [
   {
     method: "GET",
     path: "/v1/usage",
-    description: "Get usage statistics for your API key",
+    status: "roadmap",
+    description: "Usage statistics (planned; usage ledger is not enabled yet)",
     params: [
       { name: "start_date", type: "string", required: false, desc: "ISO 8601 date" },
       { name: "end_date", type: "string", required: false, desc: "ISO 8601 date" },
@@ -97,7 +102,7 @@ export default function ApiReferencePage() {
         <div className="rounded-xl border border-border/60 bg-card p-6">
           <p className="mb-4 text-sm text-muted-foreground">
             All requests require a Bearer token in the <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">Authorization</code> header.
-            Get your API key from the dashboard.
+            In the current self-hosted alpha, configure the server&apos;s <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">ROUTER_API_KEY</code> environment variable. Per-user keys and a dashboard are planned.
           </p>
           <div className="rounded-lg border border-border/60 bg-secondary/30 overflow-hidden">
             <pre className="overflow-x-auto p-4 text-sm font-mono scrollbar-thin">
@@ -119,6 +124,11 @@ export default function ApiReferencePage() {
                   {endpoint.method}
                 </span>
                 <code className="text-sm font-mono font-medium">{endpoint.path}</code>
+                {endpoint.status === "roadmap" && (
+                  <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                    Roadmap
+                  </span>
+                )}
               </div>
 
               {/* Description */}

@@ -162,24 +162,30 @@ export default function DocsPage() {
         <h2 className="mb-6 text-2xl font-bold tracking-tight">Key Concepts</h2>
         <div className="space-y-4">
           <div className="rounded-xl border border-border/60 bg-card p-5">
-            <h3 className="mb-2 font-semibold">Model Routing</h3>
+            <div className="mb-2 flex items-center gap-2">
+              <h3 className="font-semibold">Model Routing</h3>
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">Available</span>
+            </div>
             <p className="text-sm text-muted-foreground">
-              1Router automatically routes requests to the best provider based on latency, price, and availability.
-              Specify a model by <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">{"provider/model-name"}</code> or use
-              smart routing with <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">{"1router/auto"}</code> to let us pick.
+              The current alpha resolves an explicit <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">{"provider/model-name"}</code> from the shared catalog and routes it to the configured provider. Automatic cost/latency routing is planned.
             </p>
           </div>
           <div className="rounded-xl border border-border/60 bg-card p-5">
-            <h3 className="mb-2 font-semibold">Fallbacks</h3>
+            <div className="mb-2 flex items-center gap-2">
+              <h3 className="font-semibold">Fallbacks</h3>
+              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">Roadmap</span>
+            </div>
             <p className="text-sm text-muted-foreground">
-              Configure fallback models so if a provider is down, requests automatically retry on the next best option.
-              No code changes needed — set it once in your dashboard.
+              Provider pools, health-aware retries, and fallback models are planned. Today, each request is sent to the provider selected by its catalog model ID.
             </p>
           </div>
           <div className="rounded-xl border border-border/60 bg-card p-5">
-            <h3 className="mb-2 font-semibold">Rate Limiting</h3>
+            <div className="mb-2 flex items-center gap-2">
+              <h3 className="font-semibold">Rate Limiting &amp; Usage</h3>
+              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">Roadmap</span>
+            </div>
             <p className="text-sm text-muted-foreground">
-              Set per-key rate limits, per-model quotas, and spending caps. Protect your budget and prevent runaway costs.
+              Per-key limits, quotas, spend controls, and a usage ledger are planned for the next control-plane phase. The current API uses one server-level master key.
             </p>
           </div>
         </div>
@@ -189,14 +195,14 @@ export default function DocsPage() {
       <div className="mx-auto mt-20 max-w-2xl rounded-2xl border border-border/60 bg-secondary/20 p-8 text-center">
         <h3 className="text-xl font-bold">Ready to start building?</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Get your API key and make your first call in minutes.
+          Configure the self-hosted alpha and make your first call in minutes.
         </p>
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/chat"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Get API Key
+            Quickstart
           </Link>
           <Link
             href="/api-reference"
