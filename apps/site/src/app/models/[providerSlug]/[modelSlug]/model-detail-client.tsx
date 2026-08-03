@@ -178,7 +178,7 @@ export function ModelDetailClient({ model }: { model: Model }) {
 
         <div className="flex shrink-0 items-center gap-2">
           <Link
-            href="/chat"
+            href={`/chat?model=${model.id}`}
             className="inline-flex min-h-[44px] items-center justify-center gap-2 self-start rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:self-auto"
           >
             <MessageSquare className="h-4 w-4" />

@@ -13,23 +13,49 @@ interface RankingEntry {
   change: { '24h': number; '7d': number; '30d': number; all: number };
 }
 
-// Simulated ranking data derived from model list
-const rankings: RankingEntry[] = models.map((m, i) => ({
-  rank: i + 1,
-  modelId: m.id,
-  tokens: {
-    '24h': `${(Math.random() * 15 + 0.1).toFixed(1)}B`,
-    '7d': `${(Math.random() * 80 + 1).toFixed(1)}B`,
-    '30d': `${(Math.random() * 300 + 5).toFixed(0)}B`,
-    all: `${(Math.random() * 2000 + 10).toFixed(0)}B`,
-  },
-  change: {
-    '24h': parseFloat(((Math.random() - 0.4) * 20).toFixed(1)),
-    '7d': parseFloat(((Math.random() - 0.3) * 40).toFixed(1)),
-    '30d': parseFloat(((Math.random() - 0.2) * 80).toFixed(1)),
-    all: parseFloat(((Math.random() - 0.1) * 200).toFixed(1)),
-  },
-}));
+// Deterministic PRNG (mulberry32) seeded from a string hash. Using a seeded
+// generator instead of Math.random() ensures the server-rendered HTML and
+// client hydration produce identical values — no React hydration mismatch,
+// and the ranking numbers stay stable across navigations.
+function mulberry32(seed: number): () => number {
+  let s = seed | 0;
+  return () => {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (Math.imul(hash, 31) + str.charCodeAt(i)) | 0;
+  }
+  return hash;
+}
+
+// Simulated ranking data derived from the model list. Each model's seed is
+// derived from its id so the values are unique per model yet deterministic.
+const rankings: RankingEntry[] = models.map((m, i) => {
+  const rand = mulberry32(hashString(m.id));
+  return {
+    rank: i + 1,
+    modelId: m.id,
+    tokens: {
+      '24h': `${(rand() * 15 + 0.1).toFixed(1)}B`,
+      '7d': `${(rand() * 80 + 1).toFixed(1)}B`,
+      '30d': `${(rand() * 300 + 5).toFixed(0)}B`,
+      all: `${(rand() * 2000 + 10).toFixed(0)}B`,
+    },
+    change: {
+      '24h': parseFloat(((rand() - 0.4) * 20).toFixed(1)),
+      '7d': parseFloat(((rand() - 0.3) * 40).toFixed(1)),
+      '30d': parseFloat(((rand() - 0.2) * 80).toFixed(1)),
+      all: parseFloat(((rand() - 0.1) * 200).toFixed(1)),
+    },
+  };
+});
 
 const timeRanges = [
   { value: '24h', label: '24h' },

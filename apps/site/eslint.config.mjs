@@ -1,16 +1,14 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+// Next.js 16 removed `next lint` and mandates ESLint flat config.
+// `eslint-config-next` 16 exports flat-config-compatible arrays directly,
+// so we import them without the FlatCompat bridge — which crashes ESLint 9
+// with "Converting circular structure to JSON" when it tries to validate
+// legacy config objects containing plugin references.
+import coreWebVitals from 'eslint-config-next/core-web-vitals';
+import typescript from 'eslint-config-next/typescript';
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...coreWebVitals,
+  ...typescript,
 ];
 
 export default eslintConfig;
