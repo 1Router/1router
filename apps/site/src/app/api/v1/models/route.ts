@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const upstreamUrl = process.env.ROUTER_API_URL || "http://localhost:3001"
+    const upstreamUrl = process.env.ROUTER_API_URL || "https://api.1router.com"
     const upstream = await fetch(`${upstreamUrl}/v1/models`, {
       headers: { Authorization: `Bearer ${routerApiKey}` },
       cache: "no-store",
