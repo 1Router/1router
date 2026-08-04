@@ -44,8 +44,8 @@ const sections = [
 ]
 
 const codeExamples = {
-  curl: `curl https://api.1router.com/v1/chat/completions \\
-  -H "Authorization: Bearer $ROUTER_API_KEY" \\
+  curl: `curl https://your-site.example/api/v1/chat/completions \\
+  -H "Authorization: Bearer $ROUTER_USER_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "openai/gpt-4o",
@@ -54,8 +54,8 @@ const codeExamples = {
   python: `from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.1router.com/v1",
-    api_key=os.environ["ROUTER_API_KEY"]
+    base_url="https://your-site.example/api",
+    api_key=os.environ["ROUTER_USER_API_KEY"]
 )
 
 response = client.chat.completions.create(
@@ -66,8 +66,8 @@ print(response.choices[0].message.content)`,
   javascript: `import OpenAI from "openai"
 
 const client = new OpenAI({
-  baseURL: "https://api.1router.com/v1",
-  apiKey: process.env.ROUTER_API_KEY,
+  baseURL: "https://your-site.example/api",
+  apiKey: process.env.ROUTER_USER_API_KEY,
 })
 
 const response = await client.chat.completions.create({
@@ -121,7 +121,7 @@ export default function DocsPage() {
           Quickstart
         </h2>
         <p className="mb-6 text-muted-foreground">
-          1Router is fully OpenAI-compatible. Point your existing SDK at our API and it just works.
+          The managed site proxy accepts Better Auth user API keys at <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">/api/v1</code>. Direct gateway deployments use the server-level <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">ROUTER_API_KEY</code> at their own <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">/v1</code> endpoint.
         </p>
 
         <div className="space-y-6">
@@ -185,7 +185,7 @@ export default function DocsPage() {
               <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">Roadmap</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Per-key limits, quotas, spend controls, and a usage ledger are planned for the next control-plane phase. The current API uses one server-level master key.
+              The control plane records authenticated requests through the Next.js proxy in PostgreSQL, including model, status, duration, and token counts when providers return them. It also enforces an optional durable per-user daily request quota. Direct gateway clients and anonymous demo traffic are not recorded. Per-key limits, organization quotas, token budgets, spend controls, and distributed rate limiting remain roadmap work.
             </p>
           </div>
         </div>

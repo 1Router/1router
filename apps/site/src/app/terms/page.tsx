@@ -3,15 +3,15 @@ import { FileText, GitBranch, Server, Cloud } from "lucide-react"
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: '1Router terms of service. The managed cloud is pay-as-you-go with a 5% markup. Self-hosted deployments are governed by the FSL-1.1-Apache-2.0 license.',
+  description: '1Router terms of service. The managed cloud uses Stripe Billing for subscriptions and provider usage charges. Self-hosted deployments are governed by the FSL-1.1-Apache-2.0 license.',
   openGraph: {
     title: 'Terms of Service — 1Router',
-    description: 'Terms of service for the 1Router managed cloud. Self-hosted deployments are governed by the FSL-1.1-Apache-2.0 license.',
+    description: 'Terms of service for the 1Router managed cloud and self-hosted deployments.',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Terms of Service — 1Router',
-    description: 'Terms of service for the 1Router managed cloud. Self-hosted deployments are governed by the FSL-1.1-Apache-2.0 license.',
+    description: 'Terms of service for the 1Router managed cloud and self-hosted deployments.',
   },
 }
 
@@ -32,7 +32,7 @@ const sections = [
     icon: Cloud,
     title: "Cloud Service Terms",
     body: [
-      "Cloud accounts are provided on a pay-as-you-go basis. You are billed for token usage plus a 5% markup.",
+      "Managed cloud accounts use a Stripe-managed platform subscription plus provider usage charges. Current subscription prices are shown on the pricing page; usage metering and spend controls are being built into the control plane.",
       "You are responsible for keeping your API key secure. Unauthorized use of your key is your responsibility.",
       "We reserve the right to suspend accounts for abuse, fraud, or violation of these terms.",
       "Service is provided \"as is\" without warranty. We do not guarantee uptime, though we strive for 99.9%+ availability.",

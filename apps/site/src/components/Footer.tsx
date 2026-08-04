@@ -39,7 +39,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Logo />
             <p className="mt-3 text-sm text-muted-foreground max-w-xs">
-              One interface for all AI models. Self-host or use our cloud — better prices, better uptime, no subscription.
+              One interface for all AI models. Self-host it, or use our managed service with Better Auth and Stripe Billing.
             </p>
           </div>
 

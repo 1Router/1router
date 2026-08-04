@@ -4,15 +4,15 @@ import { Check, Server, Cloud, Zap } from "lucide-react"
 
 export const metadata: Metadata = {
   title: 'Pricing',
-  description: 'Simple, transparent pricing. Self-host for free, or use our managed cloud with a 5% markup on provider costs. No subscriptions, no hidden fees.',
+  description: 'Simple, transparent deployment options. Self-host for free, or use the managed service with Stripe Billing and provider usage charges.',
   openGraph: {
     title: 'Pricing — 1Router',
-    description: 'Simple, transparent pricing. Self-host for free, or use our managed cloud with a 5% markup.',
+    description: 'Simple, transparent deployment options: self-host or use the managed service.',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Pricing — 1Router',
-    description: 'Simple, transparent pricing. Self-host for free, or use our managed cloud with a 5% markup.',
+    description: 'Simple, transparent deployment options: self-host or use the managed service.',
   },
 }
 
@@ -37,20 +37,20 @@ const plans = [
   },
   {
     name: "Cloud — Starter",
-    price: "Pay-as-you-go",
-    period: "no subscription",
+    price: "Subscription",
+    period: "plus provider usage",
     icon: Cloud,
-    description: "Use our managed cloud. Transparent markup on provider pricing. No monthly fees.",
+    description: "Use our managed cloud with a predictable platform subscription plus transparent provider usage charges.",
     features: [
       "Zero infrastructure to manage",
       "All 31+ models pre-configured",
       "Automatic failover and load balancing",
-      "Usage-based billing — no subscription",
-      "5% markup on provider token costs",
+      "Stripe-hosted subscription checkout",
+      "Usage ledger with token metadata",
       "Email support",
     ],
     cta: "Get Started",
-    ctaHref: "/chat",
+    ctaHref: "/sign-up",
     highlight: true,
   },
   {
@@ -62,7 +62,7 @@ const plans = [
     features: [
       "Dedicated edge nodes",
       "Custom SLAs and uptime guarantees",
-      "Volume discount on token markup",
+      "Custom usage and volume terms",
       "SSO / SAML authentication",
       "Priority support with dedicated engineer",
       "On-premise deployment assistance",
@@ -82,7 +82,7 @@ export default function PricingPage() {
           Simple, transparent pricing
         </h1>
         <p className="mt-4 text-lg text-muted-foreground">
-          No subscriptions, no hidden fees. Self-host for free, or use our cloud with a small markup on provider costs.
+          Self-host for free, or use our managed service with a predictable platform subscription and transparent provider usage.
         </p>
       </div>
 
@@ -146,29 +146,29 @@ export default function PricingPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-border/60 pb-4">
               <div>
-                <div className="font-medium">Provider token cost</div>
-                <div className="text-sm text-muted-foreground">What OpenAI, Anthropic, etc. charge</div>
+                <div className="font-medium">Managed platform subscription</div>
+                <div className="text-sm text-muted-foreground">Hosted control plane, auth, routing, and support</div>
               </div>
-              <span className="text-lg font-semibold">$X.00</span>
+              <span className="text-lg font-semibold">Configured plan</span>
             </div>
             <div className="flex items-center justify-between border-b border-border/60 pb-4">
               <div>
-                <div className="font-medium">1Router markup (5%)</div>
-                <div className="text-sm text-muted-foreground">Covers infrastructure and maintenance</div>
+                <div className="font-medium">Provider usage</div>
+                <div className="text-sm text-muted-foreground">Model charges are tracked separately</div>
               </div>
-              <span className="text-lg font-semibold text-primary">+$0.05X</span>
+              <span className="text-lg font-semibold text-primary">Usage-based</span>
             </div>
             <div className="flex items-center justify-between">
               <div>
                 <div className="font-medium">You pay</div>
-                <div className="text-sm text-muted-foreground">Total per million tokens</div>
+                <div className="text-sm text-muted-foreground">Platform subscription plus provider usage</div>
               </div>
-              <span className="text-xl font-bold">$1.05X</span>
+              <span className="text-xl font-bold">Subscription + usage</span>
             </div>
           </div>
         </div>
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          No subscription. No minimum spend. You only pay for what you use.
+          Stripe manages the subscription. Provider usage metering is visible in the control plane; spend controls are part of the next phase.
         </p>
       </div>
     </div>

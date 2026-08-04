@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Menu, Search, Star, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ModeToggle } from "@/components/mode-toggle"
@@ -18,6 +18,8 @@ const links = [
 
 export function Nav() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [searchQuery, setSearchQuery] = useState("")
   const [searchFocused, setSearchFocused] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const drawerRef = useRef<HTMLDialogElement>(null)
@@ -56,6 +58,16 @@ export function Nav() {
     drawerRef.current?.showModal()
   }, [])
 
+  const submitSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const query = searchQuery.trim()
+    if (!query) {
+      router.push("/models")
+      return
+    }
+    router.push(`/models?q=${encodeURIComponent(query)}`)
+  }
+
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl">
@@ -72,7 +84,7 @@ export function Nav() {
                 href={href}
                 className={cn(
                   "rounded-md px-3 py-1.5 transition-colors",
-                  pathname === href
+                  (pathname === href || (href !== "/" && pathname.startsWith(`${href}/`)))
                     ? "bg-secondary text-foreground font-semibold"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
                 )}
@@ -84,7 +96,7 @@ export function Nav() {
 
           <div className="ml-auto flex items-center gap-1 md:gap-2">
             {/* Desktop search */}
-            <div className="hidden items-center md:flex">
+            <form onSubmit={submitSearch} className="hidden items-center md:flex">
               <div
                 className={cn(
                   "flex items-center gap-2 rounded-lg border bg-secondary/50 px-3 py-1.5 transition-all w-56",
@@ -94,8 +106,11 @@ export function Nav() {
                 <Search className="h-4 w-4 text-muted-foreground" />
                 <input
                   ref={searchInputRef}
-                  type="text"
+                  type="search"
+                  value={searchQuery}
                   placeholder="Search models…"
+                  aria-label="Search models"
+                  onChange={(event) => setSearchQuery(event.target.value)}
                   onFocus={() => setSearchFocused(true)}
                   onBlur={() => setSearchFocused(false)}
                   className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
@@ -104,7 +119,7 @@ export function Nav() {
                   ⇧K
                 </kbd>
               </div>
-            </div>
+            </form>
 
             {/* Desktop-only extras */}
             <Link
@@ -115,6 +130,12 @@ export function Nav() {
             >
               <Star className="h-4 w-4" />
               <span className="tabular-nums">128</span>
+            </Link>
+            <Link
+              href="/account"
+              className="hidden items-center rounded-lg border border-border px-3.5 py-1.5 text-sm font-medium transition-colors hover:bg-secondary sm:inline-flex"
+            >
+              Account
             </Link>
             <Link
               href="/chat"
@@ -181,6 +202,12 @@ export function Nav() {
             >
               <Star className="h-4 w-4" />
               <span>Star on GitHub</span>
+            </Link>
+            <Link
+              href="/account"
+              className="mb-2 flex min-h-[44px] items-center justify-center rounded-md border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            >
+              Account / Sign in
             </Link>
             <Link
               href="/chat"

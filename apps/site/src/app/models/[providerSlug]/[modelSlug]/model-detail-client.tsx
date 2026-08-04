@@ -22,8 +22,8 @@ function formatPrice(price: number) {
 }
 
 const codeSnippets = (modelId: string) => ({
-  curl: `curl https://api.1router.com/v1/chat/completions \\
-  -H "Authorization: Bearer $ROUTER_API_KEY" \\
+  curl: `curl https://your-site.example/api/v1/chat/completions \\
+  -H "Authorization: Bearer $ROUTER_USER_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "${modelId}",
@@ -32,8 +32,8 @@ const codeSnippets = (modelId: string) => ({
   python: `from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://api.1router.com/v1",
-    api_key=os.environ["ROUTER_API_KEY"]
+    base_url="https://your-site.example/api",
+    api_key=os.environ["ROUTER_USER_API_KEY"]
 )
 
 response = client.chat.completions.create(
@@ -44,8 +44,8 @@ print(response.choices[0].message.content)`,
   javascript: `import OpenAI from "openai"
 
 const client = new OpenAI({
-  baseURL: "https://api.1router.com/v1",
-  apiKey: process.env.ROUTER_API_KEY,
+  baseURL: "https://your-site.example/api",
+  apiKey: process.env.ROUTER_USER_API_KEY,
 })
 
 const response = await client.chat.completions.create({

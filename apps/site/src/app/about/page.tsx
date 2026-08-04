@@ -49,7 +49,7 @@ export default function AboutPage() {
           About 1Router
         </h1>
         <p className="mt-4 text-lg text-muted-foreground">
-          We believe AI infrastructure should be open, transparent, and self-hostable. No walled gardens, no vendor lock-in, no subscriptions.
+          We believe AI infrastructure should be open, transparent, and self-hostable. No walled gardens or vendor lock-in: operate it yourself or use our managed service.
         </p>
       </div>
 

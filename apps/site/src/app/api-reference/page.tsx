@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 const endpoints = [
   {
     method: "POST",
-    path: "/v1/chat/completions",
+    path: "/api/v1/chat/completions",
     status: "available",
     description: "Create a chat completion with any model",
     params: [
@@ -44,14 +44,14 @@ const endpoints = [
   },
   {
     method: "GET",
-    path: "/v1/models",
+    path: "/api/v1/models",
     status: "available",
     description: "List all available models",
     params: [],
   },
   {
     method: "POST",
-    path: "/v1/embeddings",
+    path: "/api/v1/embeddings",
     status: "roadmap",
     description: "Generate text embeddings (planned)",
     params: [
@@ -61,12 +61,11 @@ const endpoints = [
   },
   {
     method: "GET",
-    path: "/v1/usage",
-    status: "roadmap",
-    description: "Usage statistics (planned; usage ledger is not enabled yet)",
+    path: "/api/usage",
+    status: "available",
+    description: "Recent usage for the authenticated Better Auth user (same-origin control-plane route)",
     params: [
-      { name: "start_date", type: "string", required: false, desc: "ISO 8601 date" },
-      { name: "end_date", type: "string", required: false, desc: "ISO 8601 date" },
+      { name: "limit", type: "integer", required: false, desc: "Number of records to return, capped at 100" },
     ],
   },
 ]
@@ -89,7 +88,7 @@ export default function ApiReferencePage() {
           OpenAI-Compatible REST API
         </h1>
         <p className="mt-4 text-lg text-muted-foreground">
-          Base URL: <code className="rounded bg-secondary px-2 py-0.5 text-sm font-mono">https://api.1router.com/v1</code>
+          Site proxy base URL: <code className="rounded bg-secondary px-2 py-0.5 text-sm font-mono">https://your-site.example/api</code>
         </p>
       </div>
 
@@ -101,12 +100,11 @@ export default function ApiReferencePage() {
         </h2>
         <div className="rounded-xl border border-border/60 bg-card p-6">
           <p className="mb-4 text-sm text-muted-foreground">
-            All requests require a Bearer token in the <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">Authorization</code> header.
-            In the current self-hosted alpha, configure the server&apos;s <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">ROUTER_API_KEY</code> environment variable. Per-user keys and a dashboard are planned.
+            Site proxy requests require a Better Auth session or user API key in the <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">Authorization</code> header. The proxy forwards only its private gateway key. Direct gateway deployments instead require the server-level <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">ROUTER_API_KEY</code>. Usage history is available at <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">/api/usage</code> for authenticated users.
           </p>
           <div className="rounded-lg border border-border/60 bg-secondary/30 overflow-hidden">
             <pre className="overflow-x-auto p-4 text-sm font-mono scrollbar-thin">
-              <code className="text-foreground">Authorization: Bearer router_sk_...</code>
+              <code className="text-foreground">Authorization: Bearer router_user_...</code>
             </pre>
           </div>
         </div>
@@ -180,8 +178,8 @@ export default function ApiReferencePage() {
               Request
             </div>
             <pre className="overflow-x-auto p-4 text-sm font-mono leading-relaxed scrollbar-thin">
-              <code className="text-foreground">{`POST /v1/chat/completions
-Authorization: Bearer router_sk_...
+              <code className="text-foreground">{`POST /api/v1/chat/completions
+Authorization: Bearer router_user_...
 
 {
   "model": "openai/gpt-4o",

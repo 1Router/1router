@@ -93,7 +93,7 @@ export default function OG() {
               display: 'flex',
             }}
           >
-            Better prices, better uptime, no subscription. Access every model through a single, OpenAI-compatible API.
+            Access every model through a single, OpenAI-compatible API. Self-hostable or managed.
           </div>
         </div>
 

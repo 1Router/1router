@@ -7,7 +7,7 @@ import { models, providers } from "@1router/models"
 
 export const metadata: Metadata = {
   title: { absolute: '1Router — One Interface for All AI Models' },
-  description: 'Access and compare all AI models through a single, unified, OpenAI-compatible API. Better prices, better uptime, no subscription. Self-hostable and open source.',
+  description: 'Access and compare all AI models through a single, unified, OpenAI-compatible API. Self-hostable, open source, or managed.',
   alternates: {
     canonical: '/',
   },
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 const stats = [
   { label: "Models", value: `${models.length}+`, icon: Zap },
   { label: "Providers", value: `${providers.length}+`, icon: Globe },
-  { label: "No subscription", value: "Pay-as-you-go", icon: DollarSign },
+  { label: "Deployment", value: "Cloud or self-hosted", icon: DollarSign },
 ]
 
 const selfHostFeatures = [
@@ -66,7 +66,7 @@ export default function Home() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-            Better prices, better uptime, no subscription. Access every model through a single, OpenAI-compatible API.
+            Access every model through a single, OpenAI-compatible API. Self-host it, or use the managed service.
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">

@@ -13,50 +13,90 @@ spec:
       labels:
         app: site
     spec:
-      containers:        - name: site
+      containers:
+        - name: site
           image: ghcr.io/1router/site:main
           imagePullPolicy: Always
           env:
-          - name: ROUTER_API_URL
-            value: "https://api.1router.com"
-          - name: ROUTER_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: api-secrets
-                key: router-api-key
+            - name: ROUTER_API_URL
+              value: "https://api.1router.com"
+            - name: ROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-secrets
+                  key: router-api-key
+            - name: ROUTER_IDENTITY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: site-secrets
+                  key: router-identity-secret
+                  optional: true
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: site-secrets
+                  key: database-url
+            - name: BETTER_AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: site-secrets
+                  key: better-auth-secret
+            - name: BETTER_AUTH_URL
+              value: "https://1router.com"
+            - name: TRUSTED_ORIGINS
+              value: "https://1router.com,https://www.1router.com"
+            - name: AUTH_REQUIRED
+              value: "true"
+            - name: ROUTER_REQUESTS_PER_DAY
+              value: "1000"
+            - name: DEPLOYMENT_MODE
+              value: "managed"
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: site-secrets
+                  key: stripe-secret-key
+                  optional: true
+            - name: STRIPE_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: site-secrets
+                  key: stripe-webhook-secret
+                  optional: true
+            - name: STRIPE_PRICE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: site-secrets
+                  key: stripe-price-id
+                  optional: true
           ports:
-
-        - containerPort: 3000
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "128Mi"
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 3000
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 3
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 3000
-          initialDelaySeconds: 15
-          periodSeconds: 10
-          timeoutSeconds: 3
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
 # ====== TODO before production ========================================
-# - Bump replicas ≥ 2 and add podAntiAffinity / PodDisruptionBudget / HPA.
-#   With imagePullPolicy: Always, every new :main image digest triggers
-#   a rolling restart on the next pod restart; rolling adds extra capacity
-#   while old pods drain, so two replicas is the minimum to keep traffic
-#   flowing through a redeploy.
-# - For instant manual rollback without rebuilding, edit image: above to
-#   one of the immutable tags already published by apps/site/build.sh:
-#     :0.1.0-aeb7b72   (specific commit on this version)
-#     :0.1.0           (specific version)
-# - Configure a horizontalPodAutoscaler on CPU and memory.
+# - Bump replicas >= 2 and add podAntiAffinity / PodDisruptionBudget / HPA.
+# - Create site-secrets out-of-band (not in git), including at minimum:
+#     database-url, better-auth-secret, and (optionally) router-identity-secret.
+# - Add the Stripe values only for the managed service. Self-hosters may
+#   leave the optional Stripe values absent.
+# - For instant rollback, replace :main with an immutable published tag.
 # ======================================================================

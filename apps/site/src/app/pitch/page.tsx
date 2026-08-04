@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'The Pitch — 1Router',
     description:
-      'Many models. Many providers. One interface. OpenAI-compatible, self-hostable, no subscription.',
+      'Many models. Many providers. One interface. OpenAI-compatible, self-hostable, or managed.',
     type: 'website',
   },
   twitter: {
@@ -61,7 +61,7 @@ const fracture = [
     icon: TrendingUp,
     title: "Prices move independently, every week",
     body:
-      "Provider pricing is now a moving target — per-million-token rates, batch discounts, prompt-cache pricing, regional surcharges, fine-tuning markups. "
+      "Provider pricing is now a moving target — per-million-token rates, batch discounts, prompt-cache pricing, regional surcharges, and fine-tuning differences. "
       + "Without a single source of truth you can't tell which model is actually cheaper for your workload this month, much less audit last quarter's bill.",
   },
   {
@@ -81,8 +81,9 @@ const convergenceItems = [
   },
   {
     icon: DollarSign,
-    title: "Pay-as-you-go, forever",
-    body: "No subscriptions, no monthly minimum. Self-host for free; use our cloud for a transparent 5% markup on provider token costs.",
+    title: "Choose your deployment model",
+    body:      "Self-host for free with your own infrastructure, or use our managed service with Stripe subscriptions and provider usage accounting.",
+
   },
   {
     icon: Server,

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     default: '1Router — One Interface for All AI Models',
     template: '%s — 1Router',
   },
-  description: 'Access and compare all AI models through a single, unified API. Better prices, better uptime, no subscription. Self-hostable and open source.',
+  description: 'Access and compare all AI models through a single, unified API. Self-hostable, open source, and available as an optional managed service.',
   keywords: ['AI models', 'API gateway', 'OpenAI compatible', 'LLM routing', 'self-hosted', 'open source', 'AI provider'],
   authors: [{ name: '1Router' }],
   creator: '1Router',
@@ -31,12 +31,12 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: '1Router',
     title: '1Router — One Interface for All AI Models',
-    description: 'Access and compare all AI models through a single, unified API. Better prices, better uptime, no subscription.',
+    description: 'Access and compare all AI models through a single, unified API. Self-hostable, open source, and available as an optional managed service.',
   },
   twitter: {
     card: 'summary_large_image',
     title: '1Router — One Interface for All AI Models',
-    description: 'Access and compare all AI models through a single, unified API. Better prices, better uptime, no subscription.',
+    description: 'Access and compare all AI models through a single, unified API. Self-hostable, open source, and available as an optional managed service.',
     creator: '@1router',
   },
   icons: {

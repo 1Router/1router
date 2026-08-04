@@ -22,7 +22,7 @@ const sections = [
     title: "What We Collect",
     body: [
       "API keys you provide for model providers (stored encrypted, never logged in plaintext).",
-      "Usage metadata: model IDs, token counts, timestamps, and request status — for billing and analytics.",
+      "Usage metadata: model IDs, token counts, timestamps, and request status — for managed-service usage accounting and analytics.",
       "Account information: email address (only for cloud users).",
       "We do NOT collect or store: the content of your prompts or completions (in cloud mode, these pass through transitively but are not persisted).",
     ],
