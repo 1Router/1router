@@ -133,6 +133,9 @@ async fn passthrough_proxy(
     for (name, value) in provider.extra_headers() {
         req_builder = req_builder.header(name, value);
     }
+    for (name, value) in provider.runtime_extra_headers() {
+        req_builder = req_builder.header(name, value);
+    }
 
     let upstream = req_builder.body(body_bytes);
 
@@ -246,6 +249,9 @@ async fn transform_proxy(
         .header(auth.header_name(), auth.header_value(api_key));
 
     for (name, value) in provider.extra_headers() {
+        req_builder = req_builder.header(name, value);
+    }
+    for (name, value) in provider.runtime_extra_headers() {
         req_builder = req_builder.header(name, value);
     }
 

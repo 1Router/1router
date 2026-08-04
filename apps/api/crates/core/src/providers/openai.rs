@@ -159,6 +159,33 @@ impl ChatProviderConfig for OpenAiChatConfig {
         self.api_key_env
     }
 
+    fn runtime_extra_headers(&self) -> Vec<(String, String)> {
+        // OpenRouter uses these optional headers to attribute requests to an
+        // application. Keep them opt-in so self-hosters do not accidentally
+        // send a misleading URL or title from a shared binary.
+        if self.api_base != "https://openrouter.ai/api/v1" {
+            return Vec::new();
+        }
+
+        let mut headers = Vec::new();
+        if let Ok(value) = std::env::var("OPENROUTER_HTTP_REFERER") {
+            if !value.trim().is_empty() {
+                headers.push(("HTTP-Referer".to_string(), value));
+            }
+        }
+        if let Ok(value) = std::env::var("OPENROUTER_TITLE") {
+            if !value.trim().is_empty() {
+                headers.push(("X-OpenRouter-Title".to_string(), value));
+            }
+        }
+        if let Ok(value) = std::env::var("OPENROUTER_CATEGORIES") {
+            if !value.trim().is_empty() {
+                headers.push(("X-OpenRouter-Categories".to_string(), value));
+            }
+        }
+        headers
+    }
+
     fn format_model_id(&self, full_id: &str) -> String {
         if self.keep_full_model_id {
             full_id.to_string()

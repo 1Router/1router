@@ -108,4 +108,12 @@ pub trait ChatProviderConfig: Sync {
     fn extra_headers(&self) -> Vec<(&'static str, &'static str)> {
         Vec::new()
     }
+
+    /// Runtime-configured headers whose values come from the deployment
+    /// environment rather than being compile-time provider requirements.
+    /// This keeps optional attribution and tenant-specific settings out of
+    /// the static provider config.
+    fn runtime_extra_headers(&self) -> Vec<(String, String)> {
+        Vec::new()
+    }
 }

@@ -80,6 +80,14 @@ spec:
               name: api-secrets
               key: openrouter-api-key
               optional: true
+        # Optional OpenRouter app attribution. Keep these aligned with the
+        # deployment's actual public URL and product name.
+        - name: OPENROUTER_HTTP_REFERER
+          value: "https://1router.com"
+        - name: OPENROUTER_TITLE
+          value: "1Router"
+        - name: OPENROUTER_CATEGORIES
+          value: "technology"
         resources:
           requests:
             cpu: "100m"
