@@ -1,61 +1,17 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Search, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { Search, ArrowUp, ArrowDown, Minus, RefreshCw } from 'lucide-react';
 import { models, modelUrl, providerColors } from '@1router/models';
 import { cn } from '@/lib/utils';
 
 interface RankingEntry {
-  rank: number;
   modelId: string;
-  tokens: { '24h': string; '7d': string; '30d': string; all: string };
-  change: { '24h': number; '7d': number; '30d': number; all: number };
+  tokens: { '24h': number; '7d': number; '30d': number; all: number };
+  change: { '24h': number | null; '7d': number | null; '30d': number | null; all: null };
+  requests: { '24h': number; '7d': number; '30d': number; all: number };
 }
-
-// Deterministic PRNG (mulberry32) seeded from a string hash. Using a seeded
-// generator instead of Math.random() ensures the server-rendered HTML and
-// client hydration produce identical values — no React hydration mismatch,
-// and the ranking numbers stay stable across navigations.
-function mulberry32(seed: number): () => number {
-  let s = seed | 0;
-  return () => {
-    s = (s + 0x6d2b79f5) | 0;
-    let t = Math.imul(s ^ (s >>> 15), 1 | s);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function hashString(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (Math.imul(hash, 31) + str.charCodeAt(i)) | 0;
-  }
-  return hash;
-}
-
-// Simulated ranking data derived from the model list. Each model's seed is
-// derived from its id so the values are unique per model yet deterministic.
-const rankings: RankingEntry[] = models.map((m, i) => {
-  const rand = mulberry32(hashString(m.id));
-  return {
-    rank: i + 1,
-    modelId: m.id,
-    tokens: {
-      '24h': `${(rand() * 15 + 0.1).toFixed(1)}B`,
-      '7d': `${(rand() * 80 + 1).toFixed(1)}B`,
-      '30d': `${(rand() * 300 + 5).toFixed(0)}B`,
-      all: `${(rand() * 2000 + 10).toFixed(0)}B`,
-    },
-    change: {
-      '24h': parseFloat(((rand() - 0.4) * 20).toFixed(1)),
-      '7d': parseFloat(((rand() - 0.3) * 40).toFixed(1)),
-      '30d': parseFloat(((rand() - 0.2) * 80).toFixed(1)),
-      all: parseFloat(((rand() - 0.1) * 200).toFixed(1)),
-    },
-  };
-});
 
 const timeRanges = [
   { value: '24h', label: '24h' },
@@ -65,198 +21,139 @@ const timeRanges = [
 ] as const;
 
 type TimeRange = (typeof timeRanges)[number]['value'];
+type SortColumn = 'rank' | 'tokens' | 'change';
 
-function ChangeIndicator({ value }: { value: number }) {
+function formatTokens(value: number): string {
+  if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(value >= 10_000_000_000 ? 0 : 1)}B`;
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(value >= 10_000_000 ? 0 : 1)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(value >= 10_000 ? 0 : 1)}K`;
+  return value.toLocaleString();
+}
+
+function ChangeIndicator({ value }: { value: number | null }) {
+  if (value === null) {
+    return <span className="font-medium text-muted-foreground">New</span>;
+  }
   if (value > 0) {
-    return (
-      <span className="inline-flex items-center gap-0.5 font-medium text-emerald-500">
-        <ArrowUp className="h-3 w-3" />
-        {value.toFixed(1)}%
-      </span>
-    );
+    return <span className="inline-flex items-center gap-0.5 font-medium text-emerald-500"><ArrowUp className="h-3 w-3" />{value.toFixed(1)}%</span>;
   }
   if (value < 0) {
-    return (
-      <span className="inline-flex items-center gap-0.5 font-medium text-red-500">
-        <ArrowDown className="h-3 w-3" />
-        {Math.abs(value).toFixed(1)}%
-      </span>
-    );
+    return <span className="inline-flex items-center gap-0.5 font-medium text-red-500"><ArrowDown className="h-3 w-3" />{Math.abs(value).toFixed(1)}%</span>;
   }
-  return (
-    <span className="inline-flex items-center gap-0.5 font-medium text-muted-foreground">
-      <Minus className="h-3 w-3" />
-      0%
-    </span>
-  );
+  return <span className="inline-flex items-center gap-0.5 font-medium text-muted-foreground"><Minus className="h-3 w-3" />0%</span>;
 }
 
 export default function RankingsPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>('24h');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'rank' | 'tokens' | 'change'>('rank');
+  const [sortBy, setSortBy] = useState<SortColumn>('rank');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
+  const [rankings, setRankings] = useState<RankingEntry[]>([]);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [reportingNote, setReportingNote] = useState('');
 
-  const handleSort = (col: 'rank' | 'tokens' | 'change') => {
-    if (sortBy === col) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/rankings', { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`Rankings request failed: ${response.status}`);
+        return response.json() as Promise<{ data?: RankingEntry[]; reportingNote?: string; available?: boolean }>;
+      })
+      .then((payload) => {
+        setRankings(payload.data || []);
+        setReportingNote(payload.reportingNote || '');
+        setStatus('ready');
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        console.error('rankings request failed', error);
+        setStatus('error');
+      });
+    return () => controller.abort();
+  }, []);
+
+  const handleSort = (column: SortColumn) => {
+    if (sortBy === column) {
+      setSortDir((previous) => previous === 'asc' ? 'desc' : 'asc');
     } else {
-      setSortBy(col);
-      setSortDir(col === 'rank' ? 'asc' : 'desc');
+      setSortBy(column);
+      setSortDir(column === 'rank' ? 'asc' : 'desc');
     }
   };
 
   const filteredRankings = useMemo(() => {
-    const filtered = rankings.filter((r) => {
-      const model = models.find((m) => m.id === r.modelId);
-      if (!model) return false;
-      const q = searchQuery.toLowerCase();
-      return model.name.toLowerCase().includes(q) || model.provider.toLowerCase().includes(q);
+    const query = searchQuery.toLowerCase();
+    const filtered = rankings.filter((entry) => {
+      const model = models.find((item) => item.id === entry.modelId);
+      return Boolean(model && (model.name.toLowerCase().includes(query) || model.provider.toLowerCase().includes(query)));
     });
 
     const sorted = [...filtered].sort((a, b) => {
-      let cmp = 0;
-      if (sortBy === 'rank') cmp = a.rank - b.rank;
-      else if (sortBy === 'tokens') cmp = parseFloat(a.tokens[timeRange]) - parseFloat(b.tokens[timeRange]);
-      else if (sortBy === 'change') cmp = a.change[timeRange] - b.change[timeRange];
-      return sortDir === 'asc' ? cmp : -cmp;
+      let comparison = 0;
+      if (sortBy === 'tokens') comparison = a.tokens[timeRange] - b.tokens[timeRange];
+      else if (sortBy === 'change') comparison = (a.change[timeRange] ?? Number.NEGATIVE_INFINITY) - (b.change[timeRange] ?? Number.NEGATIVE_INFINITY);
+      else comparison = b.tokens[timeRange] - a.tokens[timeRange];
+      return sortDir === 'asc' ? comparison : -comparison;
     });
 
-    return sorted;
-  }, [searchQuery, sortBy, sortDir, timeRange]);
+    return sorted.map((entry, index) => ({ entry, rank: index + 1 }));
+  }, [rankings, searchQuery, sortBy, sortDir, timeRange]);
 
   return (
     <div className="container py-8">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Rankings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Real-world model usage by tokens consumed through 1Router
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">Verified model usage recorded by this 1Router deployment.</p>
       </div>
 
-      {/* Time range tabs */}
+      <div className="mb-6 rounded-lg border border-border/60 bg-secondary/30 px-4 py-3 text-sm text-muted-foreground">
+        {status === 'loading' && 'Loading verified usage…'}
+        {status === 'error' && 'Verified usage is temporarily unavailable. Refresh the page to try again.'}
+        {status === 'ready' && (reportingNote || 'Rankings are based on successful authenticated proxy requests. Anonymous and direct-gateway traffic is excluded.')}
+      </div>
+
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-secondary/30 p-1">
+        <div role="tablist" aria-label="Ranking time range" className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-secondary/30 p-1">
           {timeRanges.map((range) => (
-            <button
-              key={range.value}
-              onClick={() => setTimeRange(range.value)}
-              className={cn(
-                'rounded-md px-4 py-1.5 text-sm font-medium transition-all',
-                timeRange === range.value
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
+            <button key={range.value} type="button" role="tab" aria-selected={timeRange === range.value} onClick={() => setTimeRange(range.value)} className={cn('min-h-[40px] rounded-md px-4 py-1.5 text-sm font-medium transition-all', timeRange === range.value ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}>
               {range.label}
             </button>
           ))}
         </div>
-
         <div className="relative w-full max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search models…"
-            className="w-full rounded-lg border border-border bg-secondary/30 py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/30"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <input type="search" aria-label="Search models" placeholder="Search models…" className="min-h-[44px] w-full rounded-lg border border-border bg-secondary/30 py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/30" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} />
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-border/60">
-        <div className="overflow-x-auto scrollbar-thin">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border/60 bg-secondary/30">
-                <th className="px-4 py-3 text-left">
-                  <button
-                    onClick={() => handleSort('rank')}
-                    className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                  >
-                    Rank
-                    {sortBy === 'rank' && (sortDir === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
-                  </button>
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Model
-                </th>
-                <th className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => handleSort('tokens')}
-                    className="ml-auto flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                  >
-                    Tokens
-                    {sortBy === 'tokens' && (sortDir === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
-                  </button>
-                </th>
-                <th className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => handleSort('change')}
-                    className="ml-auto flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-                  >
-                    Change
-                    {sortBy === 'change' && (sortDir === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
-                  </button>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRankings.map((entry, idx) => {
-                const model = models.find((m) => m.id === entry.modelId);
+      {status === 'ready' && filteredRankings.length > 0 && (
+        <div className="overflow-hidden rounded-xl border border-border/60">
+          <div className="overflow-x-auto scrollbar-thin">
+            <table className="w-full">
+              <thead><tr className="border-b border-border/60 bg-secondary/30">
+                <th className="px-4 py-3 text-left"><button type="button" onClick={() => handleSort('rank')} aria-label="Sort by rank" className="inline-flex min-h-[44px] items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Rank {sortBy === 'rank' && (sortDir === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}</button></th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Model</th>
+                <th className="px-4 py-3 text-right"><button type="button" onClick={() => handleSort('tokens')} aria-label="Sort by tokens" className="ml-auto inline-flex min-h-[44px] items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tokens {sortBy === 'tokens' && (sortDir === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}</button></th>
+                <th className="px-4 py-3 text-right"><button type="button" onClick={() => handleSort('change')} aria-label="Sort by change" className="ml-auto inline-flex min-h-[44px] items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Change {sortBy === 'change' && (sortDir === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}</button></th>
+              </tr></thead>
+              <tbody>{filteredRankings.map(({ entry, rank }) => {
+                const model = models.find((item) => item.id === entry.modelId);
                 if (!model) return null;
-                return (
-                  <tr
-                    key={entry.modelId}
-                    className="border-b border-border/40 transition-colors last:border-0 hover:bg-secondary/30"
-                  >
-                    <td className="px-4 py-3">
-                      <span className={cn(
-                        'inline-flex h-7 w-7 items-center justify-center rounded-md text-sm font-semibold',
-                        idx < 3 ? 'bg-primary/10 text-primary' : 'text-muted-foreground'
-                      )}>
-                        {entry.rank}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Link href={modelUrl(model)} className="flex items-center gap-3">
-                        <div
-                          className={cn(
-                            'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold',
-                            providerColors[model.providerSlug] || 'bg-secondary text-muted-foreground'
-                          )}
-                        >
-                          {model.provider.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium hover:text-primary">{model.name}</div>
-                          <div className="text-xs text-muted-foreground">{model.provider}</div>
-                        </div>
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="font-semibold">{entry.tokens[timeRange]}</span>
-                      <span className="ml-1 text-xs text-muted-foreground">tokens</span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <ChangeIndicator value={entry.change[timeRange]} />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {filteredRankings.length === 0 && (
-        <div className="mt-8 text-center text-sm text-muted-foreground">
-          No models match your search.
+                return <tr key={entry.modelId} className="border-b border-border/40 transition-colors last:border-0 hover:bg-secondary/30">
+                  <td className="px-4 py-3"><span className={cn('inline-flex h-7 w-7 items-center justify-center rounded-md text-sm font-semibold', rank <= 3 ? 'bg-primary/10 text-primary' : 'text-muted-foreground')}>{rank}</span></td>
+                  <td className="px-4 py-3"><Link href={modelUrl(model)} className="flex items-center gap-3"><div className={cn('flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold', providerColors[model.providerSlug] || 'bg-secondary text-muted-foreground')}>{model.provider.charAt(0)}</div><div><div className="text-sm font-medium hover:text-primary">{model.name}</div><div className="text-xs text-muted-foreground">{model.provider}</div></div></Link></td>
+                  <td className="px-4 py-3 text-right"><span className="font-semibold">{formatTokens(entry.tokens[timeRange])}</span><span className="ml-1 text-xs text-muted-foreground">tokens</span></td>
+                  <td className="px-4 py-3 text-right"><ChangeIndicator value={entry.change[timeRange]} /></td>
+                </tr>;
+              })}</tbody>
+            </table>
+          </div>
         </div>
       )}
+
+      {status === 'loading' && <div className="flex items-center justify-center gap-2 py-20 text-sm text-muted-foreground" aria-busy="true"><RefreshCw className="h-4 w-4 animate-spin" />Loading rankings</div>}
+      {status === 'ready' && filteredRankings.length === 0 && <div className="rounded-xl border border-dashed border-border px-6 py-20 text-center"><h2 className="text-lg font-semibold">{searchQuery ? 'No models match your search' : 'No verified rankings yet'}</h2><p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">{searchQuery ? 'Try a different model or provider name.' : 'This deployment will populate rankings after authenticated requests have completed through the site proxy. No synthetic values are shown.'}</p></div>}
+      {status === 'error' && <div className="rounded-xl border border-dashed border-border px-6 py-20 text-center"><h2 className="text-lg font-semibold">Rankings unavailable</h2><p className="mt-2 text-sm text-muted-foreground">The usage database could not be queried.</p></div>}
     </div>
   );
 }

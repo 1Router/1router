@@ -3,6 +3,7 @@ import { NextRequest } from "next/server"
 import { authConfigurationError } from "@/lib/auth"
 import { authenticatedIdentity } from "@/lib/request-auth"
 import { QuotaExceededError, recordUsage, releaseRequest, reserveRequest } from "@/lib/usage"
+import { resolveApplicationId } from "@/lib/applications"
 
 const identityHeader = "X-1Router-Identity"
 const identitySignatureHeader = "X-1Router-Identity-Signature"
@@ -24,7 +25,7 @@ function identityAssertion(identity: string, secret: string): Record<string, str
 export const runtime = "nodejs"
 
 function upstreamRouterUrl(): string {
-  return process.env.ROUTER_API_URL || "http://localhost:3001"
+  return process.env.ROUTER_API_URL || "https://api.1router.com"
 }
 const requestWindowMs = 60_000
 const defaultRequestsPerMinute = 10
@@ -88,6 +89,7 @@ function recordStreamUsage(
   requestId: string | null,
   startedAt: number,
   reservationId: string | null,
+  applicationId: string | null,
 ): ReadableStream<Uint8Array> {
   const reader = stream.getReader()
   const decoder = new TextDecoder()
@@ -121,6 +123,7 @@ function recordStreamUsage(
         durationMs: Date.now() - startedAt,
         ...usage,
         streamed: true,
+        applicationId,
         reservationId,
       })
     } catch (error) {
@@ -241,7 +244,26 @@ export async function chatPost(request: NextRequest, requireAuthentication = fal
   }
 
   let reservationId: string | null = null
+  let applicationId: string | null = null
   if (identity) {
+    const applicationSlug = request.headers.get("x-1router-application")?.trim()
+    if (applicationSlug) {
+      try {
+        applicationId = await resolveApplicationId(identity, applicationSlug)
+      } catch (error) {
+        console.error("application attribution lookup failed", error)
+        return Response.json(
+          { error: { message: "Application attribution is unavailable.", type: "configuration_error" } },
+          { status: 503 },
+        )
+      }
+      if (!applicationId) {
+        return Response.json(
+          { error: { message: "The X-1Router-Application value is not registered for this account.", type: "invalid_request_error" } },
+          { status: 400 },
+        )
+      }
+    }
     try {
       reservationId = await reserveRequest(identity)
     } catch (error) {
@@ -306,7 +328,7 @@ export async function chatPost(request: NextRequest, requireAuthentication = fal
     const streamed = (upstream.headers.get("content-type") || "").includes("text/event-stream")
     if (streamed && identity && upstream.body) {
       return new Response(
-        recordStreamUsage(upstream.body, identity, model, upstream.status, requestId, startedAt, reservationId),
+        recordStreamUsage(upstream.body, identity, model, upstream.status, requestId, startedAt, reservationId, applicationId),
         {
           status: upstream.status,
           statusText: upstream.statusText,
@@ -335,6 +357,7 @@ export async function chatPost(request: NextRequest, requireAuthentication = fal
             completionTokens: Number(usage?.completion_tokens || 0),
             totalTokens: Number(usage?.total_tokens || 0),
             streamed: false,
+            applicationId,
           })
         } catch (error) {
           console.error("usage recording failed", error)

@@ -12,6 +12,7 @@ export interface UsageRecord {
   completionTokens: number
   totalTokens: number
   streamed: boolean
+  applicationId?: string | null
   reservationId?: string | null
 }
 
@@ -20,6 +21,28 @@ export interface QuotaStatus {
   used: number
   reserved: number
   remaining: number | null
+}
+
+export interface PublicRanking {
+  modelId: string
+  tokens: {
+    "24h": number
+    "7d": number
+    "30d": number
+    all: number
+  }
+  change: {
+    "24h": number | null
+    "7d": number | null
+    "30d": number | null
+    all: null
+  }
+  requests: {
+    "24h": number
+    "7d": number
+    "30d": number
+    all: number
+  }
 }
 
 function configuredDailyLimit(): number {
@@ -115,8 +138,8 @@ export async function recordUsage(record: UsageRecord): Promise<void> {
     await client.query(
       `INSERT INTO router_usage
         (identity, model, status, request_id, duration_ms, prompt_tokens,
-         completion_tokens, total_tokens, streamed)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+         completion_tokens, total_tokens, streamed, application_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
       [
         safeText(record.identity, 255),
         safeText(record.model, 255),
@@ -127,6 +150,7 @@ export async function recordUsage(record: UsageRecord): Promise<void> {
         safeCount(record.completionTokens),
         safeCount(record.totalTokens),
         record.streamed,
+        record.applicationId || null,
       ],
     )
     await client.query("COMMIT")
@@ -136,6 +160,81 @@ export async function recordUsage(record: UsageRecord): Promise<void> {
   } finally {
     client.release()
   }
+}
+
+/**
+ * Aggregate only successful, authenticated proxy requests. This deliberately
+ * returns model-level totals and never exposes identities, prompts, or raw
+ * request rows to the public rankings page.
+ */
+export async function getPublicRankings(limit = 50): Promise<PublicRanking[]> {
+  const boundedLimit = Math.min(Math.max(Math.trunc(limit), 1), 100)
+  const result = await database.query<{
+    model: string
+    tokens_24h: string
+    tokens_7d: string
+    tokens_30d: string
+    tokens_all: string
+    previous_tokens_24h: string
+    previous_tokens_7d: string
+    previous_tokens_30d: string
+    requests_24h: string
+    requests_7d: string
+    requests_30d: string
+    requests_all: string
+  }>(
+    `SELECT
+       model,
+       COALESCE(SUM(total_tokens) FILTER (WHERE created_at >= now() - interval '24 hours'), 0)::text AS tokens_24h,
+       COALESCE(SUM(total_tokens) FILTER (WHERE created_at >= now() - interval '7 days'), 0)::text AS tokens_7d,
+       COALESCE(SUM(total_tokens) FILTER (WHERE created_at >= now() - interval '30 days'), 0)::text AS tokens_30d,
+       COALESCE(SUM(total_tokens), 0)::text AS tokens_all,
+       COALESCE(SUM(total_tokens) FILTER (WHERE created_at >= now() - interval '48 hours' AND created_at < now() - interval '24 hours'), 0)::text AS previous_tokens_24h,
+       COALESCE(SUM(total_tokens) FILTER (WHERE created_at >= now() - interval '14 days' AND created_at < now() - interval '7 days'), 0)::text AS previous_tokens_7d,
+       COALESCE(SUM(total_tokens) FILTER (WHERE created_at >= now() - interval '60 days' AND created_at < now() - interval '30 days'), 0)::text AS previous_tokens_30d,
+       COUNT(*) FILTER (WHERE created_at >= now() - interval '24 hours')::text AS requests_24h,
+       COUNT(*) FILTER (WHERE created_at >= now() - interval '7 days')::text AS requests_7d,
+       COUNT(*) FILTER (WHERE created_at >= now() - interval '30 days')::text AS requests_30d,
+       COUNT(*)::text AS requests_all
+     FROM router_usage
+     WHERE status >= 200 AND status < 300
+     GROUP BY model
+     HAVING COUNT(*) > 0
+     ORDER BY SUM(total_tokens) FILTER (WHERE created_at >= now() - interval '30 days') DESC, COUNT(*) DESC, model ASC
+     LIMIT $1`,
+    [boundedLimit],
+  )
+
+  const parse = (value: string): number => {
+    const number = Number(value)
+    return Number.isSafeInteger(number) && number >= 0 ? number : 0
+  }
+  const change = (current: number, previous: number): number | null => {
+    if (previous === 0) return null
+    return Number((((current - previous) / previous) * 100).toFixed(1))
+  }
+
+  return result.rows.map((row) => {
+    const tokens24h = parse(row.tokens_24h)
+    const tokens7d = parse(row.tokens_7d)
+    const tokens30d = parse(row.tokens_30d)
+    return {
+      modelId: row.model,
+      tokens: { "24h": tokens24h, "7d": tokens7d, "30d": tokens30d, all: parse(row.tokens_all) },
+      change: {
+        "24h": change(tokens24h, parse(row.previous_tokens_24h)),
+        "7d": change(tokens7d, parse(row.previous_tokens_7d)),
+        "30d": change(tokens30d, parse(row.previous_tokens_30d)),
+        all: null,
+      },
+      requests: {
+        "24h": parse(row.requests_24h),
+        "7d": parse(row.requests_7d),
+        "30d": parse(row.requests_30d),
+        all: parse(row.requests_all),
+      },
+    }
+  })
 }
 
 export async function getQuotaStatus(identity: string): Promise<QuotaStatus> {
@@ -167,7 +266,7 @@ export async function listUsage(identity: string, limit = 100): Promise<Array<Us
   const boundedLimit = Math.min(Math.max(Math.trunc(limit), 1), 100)
   const result = await database.query(
     `SELECT id, identity, model, status, request_id, duration_ms,
-            prompt_tokens, completion_tokens, total_tokens, streamed, created_at
+            prompt_tokens, completion_tokens, total_tokens, streamed, application_id, created_at
        FROM router_usage
       WHERE identity = $1
       ORDER BY created_at DESC
@@ -186,6 +285,7 @@ export async function listUsage(identity: string, limit = 100): Promise<Array<Us
     completionTokens: row.completion_tokens,
     totalTokens: row.total_tokens,
     streamed: row.streamed,
+    applicationId: row.application_id,
     createdAt: row.created_at.toISOString(),
   }))
 }
