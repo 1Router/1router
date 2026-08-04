@@ -28,7 +28,9 @@ per-key/org quotas and spend controls are the next slice.
 
 The site requires PostgreSQL for Better Auth. This is intentional: the same
 persistence contract works in both deployment modes without maintaining two
-incompatible schemas.
+incompatible schemas. The checked-in Compose file publishes the database on
+host port `5433` by default (PostgreSQL still listens on `5432` inside the
+container), which avoids collisions with another local Postgres container.
 
 - **Self-hosted:** run PostgreSQL yourself and set `DATABASE_URL`.
 - **Managed:** provide a managed PostgreSQL instance and set `DATABASE_URL` in
@@ -39,7 +41,9 @@ bootstrap command:
 
 ```bash
 docker compose -f docker-compose.self-hosted.yml up -d postgres
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/onerouter \
+# apps/site/.env.local uses localhost:5433 by default.
+# Bootstrap uses host psql when installed, otherwise psql inside the running container.
+DATABASE_URL=postgres://postgres:postgres@localhost:5433/onerouter \
   bun run --cwd apps/site auth:bootstrap
 ```
 
@@ -49,7 +53,9 @@ plugin changes can alter the schema. It then runs the checked-in, versioned
 operator migrations for `router_usage` and `router_quota_reservations`. For
 production, run `DATABASE_URL=... bun run --cwd apps/site app:migrate` as a
 one-shot migration job before starting the site. The direct Better Auth
-commands remain available as `auth:generate` and `auth:migrate`.
+commands remain available as `auth:generate` and `auth:migrate`. The application
+migration includes the public application showcase schema; if the homepage
+reports that the showcase is not initialized, run `bun run --cwd apps/site app:migrate`.
 
 ## Billing
 
@@ -84,12 +90,13 @@ Copy `.env.example` and configure:
 | `BETTER_AUTH_URL` | Yes for auth | Canonical site URL |
 | `TRUSTED_ORIGINS` | Recommended | Comma-separated trusted origins |
 | `AUTH_REQUIRED` | Managed: yes | Require a Better Auth session/API key for `/api/chat` |
-| `ROUTER_API_URL` | Yes | Rust gateway URL |
+| `ROUTER_API_URL` | Optional | Rust gateway URL; defaults to `https://api.1router.com` outside the local `bun run dev` workflow |
 | `ROUTER_API_KEY` | Yes | Private site-to-gateway master key |
 | `ROUTER_USER_API_KEY` | Client-side only | The Better Auth user key generated in `/account`; never put this in the site server environment |
 | `ROUTER_IDENTITY_SECRET` | Recommended | Shared HMAC secret for the signed user identity assertion |
 | `CHAT_RATE_LIMIT_PER_MINUTE` | Optional | Temporary per-process proxy request limit |
 | `ROUTER_REQUESTS_PER_DAY` | Optional | Durable authenticated-user request quota; `0` means unlimited |
+| `X-1Router-Application` | Optional per request | Registered application slug used for explicit usage attribution |
 | `STRIPE_SECRET_KEY` | Managed only | Stripe server secret |
 | `STRIPE_WEBHOOK_SECRET` | Managed only | Stripe endpoint signing secret |
 | `STRIPE_PRICE_ID` | Managed only | Managed plan recurring Price ID |
@@ -107,9 +114,13 @@ response.
 
 Authenticated users can query their own recent records at `GET /api/usage` or
 view them on `/account`. The endpoint is scoped by the Better Auth user ID and
-never accepts an arbitrary identity from the request. The ledger currently
-covers authenticated requests through the Next.js proxy; direct Rust gateway
-clients and anonymous demo traffic are intentionally not recorded.
+never accepts an arbitrary identity from the request. The ledger currently covers authenticated requests through the Next.js proxy;
+direct Rust gateway clients and anonymous demo traffic are intentionally not
+recorded in the public aggregates. Model rankings read verified successful
+records from `/api/rankings`. Application showcase attribution is opt-in: owners
+register an application under `/account`, send its slug in the
+`X-1Router-Application` header, and only public applications appear at
+`/api/applications/public`.
 The bootstrap and application migration runner are idempotent. Add a new
 numbered SQL migration for future changes to `router_usage` or
 `router_quota_reservations`; do not edit an already-applied migration. Set
@@ -131,10 +142,30 @@ demo can leave it false during initial setup.
 
 ## Development
 
+From the repository root, the recommended one-command workflow is:
+
 ```bash
 bun install
-bun run dev:site
+bun run dev
 ```
 
-The site runs on `http://localhost:3000`; the Rust gateway normally runs on
-`http://localhost:3001`.
+The root `dev` script starts Dockerized PostgreSQL on host port `5433`, waits
+for it to become ready, runs the idempotent Better Auth/application bootstrap,
+and then starts both the Next.js site and Rust gateway. Press `Ctrl-C` to stop
+the site and gateway; the database container is intentionally left running so
+future starts are fast.
+
+Use these commands when you want individual services:
+
+```bash
+bun run dev:site
+bun run dev:api
+```
+
+The site runs on
+`http://localhost:3000`; the local `bun run dev` workflow runs the Rust gateway
+at `http://localhost:3001`. Self-hosted and managed deployments default their
+site proxy to `https://api.1router.com` unless `ROUTER_API_URL` is explicitly
+set. For a self-hosted gateway, set `ROUTER_API_URL` to that gateway's URL and
+use the matching `ROUTER_API_KEY`; the template's `router_sk_test` key is only
+for the local full-stack development gateway.

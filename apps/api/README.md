@@ -46,6 +46,10 @@ per-key/org quotas and spend limits remain control-plane roadmap work.
 Provider credentials remain server-side environment variables. Supported
 provider adapters include OpenAI-compatible providers, Anthropic, Google,
 xAI, DeepSeek, Qwen, Mistral, Groq, Perplexity, NVIDIA NIM, and OpenRouter.
+When routing through OpenRouter, optional attribution can be configured with
+`OPENROUTER_HTTP_REFERER`, `OPENROUTER_TITLE`, and
+`OPENROUTER_CATEGORIES`; these are sent as OpenRouter's `HTTP-Referer`,
+`X-OpenRouter-Title`, and `X-OpenRouter-Categories` headers.
 
 Anthropic and Google currently use a fake-stream compatibility fallback: the
 full upstream response is collected and emitted as one OpenAI-shaped SSE chunk.

@@ -37,7 +37,8 @@ The current release is a deployable alpha/MVP:
 - The Rust gateway still uses the server-level `ROUTER_API_KEY` for its internal
   hop, and now accepts an optional short-lived HMAC identity assertion from the
   site proxy. The site control plane records authenticated request usage in
-  PostgreSQL and can enforce a durable per-user daily request quota; spend
+  PostgreSQL, serves verified model rankings, supports explicit opt-in app
+  attribution, and can enforce a durable per-user daily request quota; spend
   controls and organization scope are the next slice.
 
 ## Authentication and billing architecture
@@ -95,21 +96,48 @@ required. Start with:
 ```bash
 cp apps/site/.env.example apps/site/.env.local
 # Set the site values in apps/site/.env.local.
+# Self-host deployments default to https://api.1router.com; local bun run dev uses the local Rust API.
 bun install
-set -a; source apps/site/.env.local; set +a
-bun run dev:site
-# In a second shell, export gateway values and start the Rust service.
-export ROUTER_API_KEY=router_sk_test ROUTER_IDENTITY_SECRET=$(openssl rand -hex 32)
-export OPENAI_API_KEY=sk-...
-BIND_ADDR=0.0.0.0:3001 bun run dev:api
+# Starts Dockerized Postgres, bootstraps Better Auth, then runs site + API.
+bun run dev
+# Set provider keys in your shell before running it, for example:
+# export OPENAI_API_KEY=sk-...
 ```
 
 For production, use the Dockerfiles and Kubernetes manifests under
 `apps/site/` and `apps/api/`. Start a local PostgreSQL instance with
-`docker compose -f docker-compose.self-hosted.yml up -d postgres`, then apply
+`docker compose -f docker-compose.self-hosted.yml up -d postgres` (it publishes host port 5433 by default), then apply
 Better Auth's generated schema with `bun run --cwd apps/site auth:bootstrap`.
 Review the generated SQL, then run the versioned application migration job with
 `DATABASE_URL=... bun run --cwd apps/site app:migrate` before starting the site.
+
+### Local PostgreSQL troubleshooting
+
+The self-hosted compose file intentionally publishes PostgreSQL on host port
+`5433` (container port remains `5432`) so it can coexist with another local
+PostgreSQL installation or container already using `5432`:
+
+```bash
+docker compose -f docker-compose.self-hosted.yml up -d postgres
+# apps/site/.env.local should use:
+# DATABASE_URL=postgres://postgres:postgres@localhost:5433/onerouter
+set -a; source apps/site/.env.local; set +a
+# Uses host psql when installed, otherwise psql inside the running Postgres container.
+bun run --cwd apps/site auth:bootstrap
+```
+
+If you have already created the 1Router volume with different credentials,
+changing `POSTGRES_PASSWORD` does not change that existing database. Stop and
+remove only the 1Router service/volume if it contains no data you need, then
+start it again:
+
+```bash
+docker compose -f docker-compose.self-hosted.yml down -v
+```
+
+Do not run `down -v` against a shared or production Compose project. The
+existing unrelated `nomad-postgres` container on host port `5432` is not the
+1Router database and should not be modified by the 1Router setup.
 
 ### Managed service
 
@@ -129,8 +157,11 @@ source-available project yourself.
 
 ```bash
 bun install
-bun run dev:site
-bun run dev:api
+bun run dev       # Postgres + Better Auth bootstrap + site + Rust API
+bun run dev:site  # site only
+bun run dev:api   # Rust API only
+# Production/self-host proxy default: https://api.1router.com
+
 bun run build
 bun run lint
 ```
@@ -138,7 +169,8 @@ bun run lint
 ## Roadmap
 
 1. Add per-key/org scope, distributed rate limiting, token budgets, and spend
-   controls around the authenticated usage ledger.
+   controls around the authenticated usage ledger; extend application ownership
+   from users to organizations and API keys.
 2. Add provider health checks, retries, weighted routing, and failover.
 3. Add true Anthropic/Google SSE translation, tool calling, and embeddings.
 4. Add managed-service operational controls, invoices/usage views, alerts, and
