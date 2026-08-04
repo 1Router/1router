@@ -1,7 +1,8 @@
 import { betterAuth } from "better-auth"
 import { nextCookies } from "better-auth/next-js"
 import { apiKey } from "@better-auth/api-key"
-import { bearer, organization } from "better-auth/plugins"
+import { bearer, magicLink, organization } from "better-auth/plugins"
+import { escapeHtml, sendAuthEmail } from "@/lib/auth-email"
 import { stripe } from "@better-auth/stripe"
 import Stripe from "stripe"
 import { database } from "@/lib/database"
@@ -10,6 +11,7 @@ const isDevelopment = process.env.NODE_ENV === "development"
 const isBuild = process.env.NEXT_PHASE === "phase-production-build"
 const betterAuthSecret = process.env.BETTER_AUTH_SECRET
 const betterAuthUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000"
+const hasMagicLinkEmail = Boolean(process.env.RESEND_API_KEY && process.env.RESEND_EMAIL_FROM)
 
 // Next evaluates route modules while building. Keep that evaluation
 // side-effect-safe, but expose a runtime error below instead of ever using a
@@ -20,6 +22,9 @@ export const authConfigurationError = !isDevelopment && !isBuild
       !process.env.DATABASE_URL ? "DATABASE_URL must be configured" : null,
       !process.env.BETTER_AUTH_URL ? "BETTER_AUTH_URL must be configured" : null,
       stripeConfigurationError() || null,
+      !hasMagicLinkEmail
+        ? "Magic-link auth requires RESEND_API_KEY and RESEND_EMAIL_FROM"
+        : null,
     ].filter((message): message is string => Boolean(message)).join("; ")
   : ""
 
@@ -88,10 +93,37 @@ export const auth = betterAuth({
     betterAuthUrl,
     ...(process.env.TRUSTED_ORIGINS?.split(",").map((origin) => origin.trim()).filter(Boolean) || []),
   ],
-  emailAndPassword: {
-    enabled: true,
+  socialProviders: {
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? {
+          google: {
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          },
+        }
+      : {}),
+    ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+      ? {
+          github: {
+            clientId: process.env.GITHUB_CLIENT_ID,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+          },
+        }
+      : {}),
   },
   plugins: [
+    magicLink({
+      expiresIn: 600,
+      sendMagicLink: async ({ email, url }) => {
+        const safeUrl = escapeHtml(url)
+        await sendAuthEmail({
+          to: email,
+          subject: "Your 1Router sign-in link",
+          text: `Sign in to 1Router: ${url}\n\nThis link expires in 10 minutes and can only be used once.`,
+          html: `<p>Sign in to 1Router by clicking the link below:</p><p><a href="${safeUrl}">Sign in to 1Router</a></p><p>This link expires in 10 minutes and can only be used once.</p>`,
+        })
+      },
+    }),
     organization(),
     apiKey({
       references: "user",

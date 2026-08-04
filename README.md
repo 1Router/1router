@@ -64,7 +64,8 @@ OpenAI / Anthropic / Google / compatible providers
 
 The site uses [Better Auth](https://better-auth.com) with PostgreSQL for:
 
-- email/password authentication;
+- passwordless magic-link authentication;
+- optional Google and GitHub OAuth;
 - sessions and account lifecycle;
 - organizations and membership roles;
 - user-owned API keys;
@@ -72,7 +73,9 @@ The site uses [Better Auth](https://better-auth.com) with PostgreSQL for:
 
 Auth routes are mounted at `/api/auth/[...all]`. Configure the site with
 `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and
-`TRUSTED_ORIGINS`. See [`apps/site/README.md`](apps/site/README.md).
+`TRUSTED_ORIGINS`. Configure `RESEND_API_KEY` and `RESEND_EMAIL_FROM` for
+magic-link delivery, plus optional Google/GitHub OAuth credentials. See
+[`apps/site/README.md`](apps/site/README.md).
 
 ### Stripe Billing
 

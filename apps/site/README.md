@@ -8,7 +8,8 @@ surface, and managed-service control plane.
 1Router uses [Better Auth](https://better-auth.com) for authentication and
 account management:
 
-- email/password sign-up and sign-in;
+- passwordless magic-link sign-in and sign-up;
+- optional Google and GitHub OAuth sign-in;
 - sessions stored in PostgreSQL;
 - organizations and membership roles;
 - user-owned API keys through the Better Auth API Key plugin;
@@ -89,6 +90,14 @@ Copy `.env.example` and configure:
 | `BETTER_AUTH_SECRET` | Yes for auth | 32+ character high-entropy secret |
 | `BETTER_AUTH_URL` | Yes for auth | Canonical site URL |
 | `TRUSTED_ORIGINS` | Recommended | Comma-separated trusted origins |
+| `RESEND_API_KEY` | Magic links | Server-side Resend API key |
+| `RESEND_EMAIL_FROM` | Magic links | Verified sender, e.g. `1Router <auth@example.com>` |
+| `GOOGLE_CLIENT_ID` | Optional | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth client secret |
+| `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED` | Optional | Set `true` to show Google sign-in |
+| `GITHUB_CLIENT_ID` | Optional | GitHub OAuth client ID |
+| `GITHUB_CLIENT_SECRET` | Optional | GitHub OAuth client secret |
+| `NEXT_PUBLIC_GITHUB_AUTH_ENABLED` | Optional | Set `true` to show GitHub sign-in |
 | `AUTH_REQUIRED` | Managed: yes | Require a Better Auth session/API key for `/api/chat` |
 | `ROUTER_API_URL` | Optional | Rust gateway URL; defaults to `https://api.1router.com` outside the local `bun run dev` workflow |
 | `ROUTER_API_KEY` | Yes | Private site-to-gateway master key |
@@ -102,6 +111,18 @@ Copy `.env.example` and configure:
 | `STRIPE_PRICE_ID` | Managed only | Managed plan recurring Price ID |
 
 No secret should use a `NEXT_PUBLIC_` prefix.
+
+### Passwordless auth setup
+
+1. Create a Resend account, verify the sending domain/address, and set
+   `RESEND_API_KEY` and `RESEND_EMAIL_FROM`. Magic links expire after 10 minutes
+   and are single-use.
+2. For Google, register `http://localhost:3000/api/auth/callback/google` locally
+   and `https://your-domain.example/api/auth/callback/google` in production.
+3. For GitHub, register the matching `/api/auth/callback/github` callback URL
+   and grant the app access to the user's email address.
+4. Password authentication is intentionally disabled; users sign in through a
+   magic link or an enabled social provider.
 
 ## Usage ledger
 

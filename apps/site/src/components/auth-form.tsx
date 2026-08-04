@@ -2,39 +2,53 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { authClient } from "@/lib/auth-client"
+import { authClient, socialProviders } from "@/lib/auth-client"
 
 type Mode = "sign-in" | "sign-up"
 
 export function AuthForm({ mode }: { mode: Mode }) {
-  const router = useRouter()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [notice, setNotice] = useState("")
   const [pending, setPending] = useState(false)
 
   const isSignUp = mode === "sign-up"
 
+  async function signInWith(provider: "google" | "github") {
+    setError("")
+    setNotice("")
+    setPending(true)
+    const result = await authClient.signIn.social({
+      provider,
+      callbackURL: "/account",
+      newUserCallbackURL: "/account",
+    })
+    setPending(false)
+    if (result.error) setError(result.error.message || `Unable to sign in with ${provider}.`)
+  }
+
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError("")
+    setNotice("")
     setPending(true)
 
-    const result = isSignUp
-      ? await authClient.signUp.email({ name, email, password })
-      : await authClient.signIn.email({ email, password })
+    const result = await authClient.signIn.magicLink({
+      email,
+      name: isSignUp ? name : undefined,
+      callbackURL: "/account",
+      newUserCallbackURL: "/account",
+    })
 
     setPending(false)
 
     if (result.error) {
-      setError(result.error.message || "Unable to authenticate. Please try again.")
+      setError(result.error.message || "Unable to send a sign-in link. Please try again.")
       return
     }
 
-    router.push("/account")
-    router.refresh()
+    setNotice("Check your email for a secure sign-in link. It expires in 10 minutes.")
   }
 
   return (
@@ -45,11 +59,42 @@ export function AuthForm({ mode }: { mode: Mode }) {
           {isSignUp ? "Create your account" : "Welcome back"}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {isSignUp
-            ? "Create a workspace for the managed service or your self-hosted control plane."
-            : "Sign in to manage your workspace, API keys, and billing."}
+          Sign in securely with a magic link or your preferred provider. No password required.
         </p>
       </div>
+
+      {(socialProviders.google || socialProviders.github) && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {socialProviders.google && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => signInWith("google")}
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border bg-background px-4 text-sm font-semibold transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Continue with Google
+            </button>
+          )}
+          {socialProviders.github && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => signInWith("github")}
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border bg-background px-4 text-sm font-semibold transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Continue with GitHub
+            </button>
+          )}
+        </div>
+      )}
+
+      {(socialProviders.google || socialProviders.github) && (
+        <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+          <span className="h-px flex-1 bg-border" />
+          <span>or email link</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
+      )}
 
       <form onSubmit={submit} className="space-y-4">
         {isSignUp && (
@@ -75,31 +120,24 @@ export function AuthForm({ mode }: { mode: Mode }) {
             autoComplete="email"
           />
         </label>
-        <label className="block text-sm font-medium">
-          Password
-          <input
-            required
-            minLength={8}
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="mt-1.5 h-11 w-full rounded-lg border border-border bg-background px-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-            autoComplete={isSignUp ? "new-password" : "current-password"}
-          />
-        </label>
 
         {error && (
           <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
           </p>
         )}
+        {notice && (
+          <p role="status" className="rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-sm text-primary">
+            {notice}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={pending}
-          className="h-11 w-full rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="min-h-11 w-full rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {pending ? "Working…" : isSignUp ? "Create account" : "Sign in"}
+          {pending ? "Sending…" : "Email me a sign-in link"}
         </button>
       </form>
 
