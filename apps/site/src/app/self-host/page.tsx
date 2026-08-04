@@ -25,17 +25,17 @@ const steps = [
   {
     num: "2",
     title: "Configure storage, auth, and providers",
-    command: "cp apps/site/.env.example apps/site/.env.local\n# Set site values in apps/site/.env.local.\n# In the gateway shell, export ROUTER_API_KEY, provider keys, and:\nexport ROUTER_IDENTITY_SECRET=$(openssl rand -hex 32)",
+    command: "cp apps/site/.env.example apps/site/.env.local\n# Set site values in apps/site/.env.local.\n# ROUTER_API_URL defaults to https://api.1router.com.\n# bun run dev overrides it to the local Rust API at http://localhost:3001.\n# In the gateway shell, export ROUTER_API_KEY, provider keys, and:\nexport ROUTER_IDENTITY_SECRET=$(openssl rand -hex 32)",
   },
   {
     num: "3",
-    title: "Start PostgreSQL and bootstrap Better Auth",
-    command: "docker compose -f docker-compose.self-hosted.yml up -d postgres\nset -a; source apps/site/.env.local; set +a\nbun run --cwd apps/site auth:bootstrap",
+    title: "Start everything locally",
+    command: "# Set provider keys in your shell first, for example: export OPENAI_API_KEY=sk-...\nbun run dev\n# Starts Dockerized Postgres, bootstraps Better Auth, and runs site + local API.",
   },
   {
     num: "4",
-    title: "Run the site and gateway",
-    command: "bun run dev:site\nBIND_ADDR=0.0.0.0:3001 bun run dev:api\n# Set AUTH_REQUIRED=false for a local anonymous demo",
+    title: "Run services individually when needed",
+    command: "bun run dev:site\n# In another terminal:\nbun run dev:api\n# The database can remain running from bun run dev.",
   },
   {
     num: "5",
@@ -89,13 +89,13 @@ export default function SelfHostPage() {
         <h2 className="mb-8 text-2xl font-bold tracking-tight">Quick Start</h2>
         <div className="space-y-6">
           {steps.map((step) => (
-            <div key={step.num} className="flex gap-6">
+            <div key={step.num} className="flex min-w-0 gap-4 sm:gap-6">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">{step.num}</div>
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <h3 className="mb-2 font-semibold">{step.title}</h3>
                 <div className="overflow-hidden rounded-xl border border-border/60 bg-card">
                   <div className="flex items-center gap-2 border-b border-border/60 bg-secondary/30 px-4 py-2"><Terminal className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs text-muted-foreground">bash</span></div>
-                  <pre className="overflow-x-auto p-4 text-sm font-mono leading-relaxed"><code className="text-foreground">{step.command}</code></pre>
+                  <pre className="overflow-x-auto p-4 text-sm font-mono leading-relaxed scrollbar-thin"><code className="text-foreground">{step.command}</code></pre>
                 </div>
               </div>
             </div>
@@ -121,9 +121,9 @@ export default function SelfHostPage() {
         <div className="space-y-2">
           {architecture.map((item, i) => (
             <div key={item.layer}>
-              <div className="flex items-center gap-4 rounded-xl border border-border/60 bg-card p-5">
+              <div className="flex min-w-0 items-center gap-4 rounded-xl border border-border/60 bg-card p-5">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">{i + 1}</div>
-                <div className="flex-1"><h3 className="font-semibold">{item.layer}</h3><p className="text-sm text-muted-foreground">{item.desc}</p></div>
+                <div className="min-w-0 flex-1"><h3 className="font-semibold">{item.layer}</h3><p className="text-sm text-muted-foreground">{item.desc}</p></div>
                 <span className="hidden rounded-md bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground sm:block">{item.tech}</span>
               </div>
               {i < architecture.length - 1 && <div className="ml-10 h-4 w-px bg-border" />}

@@ -390,7 +390,7 @@ function ChatContent() {
   );
 
   return (
-    <div className="flex h-[calc(100dvh-3.5rem)] overflow-hidden">
+    <div className="chat-viewport flex min-w-0 overflow-hidden">
       {/* Desktop sidebar */}
       <aside className="hidden w-72 shrink-0 border-r border-border/60 bg-card/50 md:flex md:flex-col">
         <div className="p-4">
@@ -408,7 +408,7 @@ function ChatContent() {
       </aside>
 
       {/* Chat area */}
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         {/* Header */}
         <div className="flex items-center justify-between gap-2 border-b border-border/60 px-4 py-3">
           <div className="flex min-w-0 items-center gap-2">
@@ -495,7 +495,7 @@ function ChatContent() {
         </div>
 
         {/* Input */}
-        <div className="border-t border-border/60 p-4">
+        <div className="border-t border-border/60 p-4 pb-safe">
           <div className="mx-auto max-w-3xl">
             <div className="flex items-end gap-2 rounded-xl border border-border bg-card p-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 transition-colors">
               <textarea
@@ -554,7 +554,7 @@ function ChatContent() {
       <dialog
         ref={pickerRef}
         aria-label="Choose models"
-        className="fixed inset-y-0 right-0 m-0 flex h-full w-80 max-w-full flex-col border-l border-border bg-background p-0 text-foreground shadow-2xl translate-x-full transition-transform duration-200 ease-out open:translate-x-0 md:hidden"
+        className="fixed inset-y-0 right-0 m-0 flex h-full w-80 max-w-full flex-col border-l border-border bg-background p-0 pb-safe text-foreground shadow-2xl translate-x-full transition-transform duration-200 ease-out open:translate-x-0 md:hidden"
       >
         <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">
           <h2 className="text-base font-semibold">Choose models</h2>

@@ -127,7 +127,7 @@ export default async function ProviderPage({
   return (
     <div className="container py-8">
       {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+      <nav className="mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <Link href="/" className="hover:text-foreground">Home</Link>
         <span>/</span>
         <Link href="/models" className="hover:text-foreground">Models</Link>

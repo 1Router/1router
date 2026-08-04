@@ -52,16 +52,16 @@ export default async function AccountPage() {
           )}
         />
         <section className="mt-8 rounded-2xl border border-border/60 bg-card p-6">
-          <div className="flex items-baseline justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-baseline sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold">Recent usage</h2>
               <p className="mt-1 text-sm text-muted-foreground">The latest requests recorded by this deployment.</p>
             </div>
-            <div className="text-right text-sm">
+            <div className="text-left text-sm sm:text-right">
               <div className="font-semibold">{quota.limit === 0 ? "Unlimited" : `${quota.remaining} left today`}</div>
               {quota.limit > 0 && <div className="text-muted-foreground">{quota.used} / {quota.limit} used</div>}
             </div>
-            <a href="/api/usage" className="text-sm font-medium text-primary hover:underline">JSON API</a>
+            <a href="/api/usage" className="inline-flex min-h-[44px] items-center text-sm font-medium text-primary hover:underline">JSON API</a>
           </div>
           {usage.length === 0 ? (
             <p className="mt-5 text-sm text-muted-foreground">No usage has been recorded yet. Run the ledger bootstrap before production use.</p>

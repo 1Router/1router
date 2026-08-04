@@ -128,8 +128,8 @@ const roadmap = [
   },
   {
     status: "Now",
-    title: "Multi-model chat and rankings",
-    body: "Use the chat surface to drive any model directly. Rankings surface what's actually getting used across 1Router — not what's most marketed.",
+    title: "Multi-model chat and verified rankings",
+    body: "Use the chat surface to drive any model directly. Rankings aggregate successful authenticated proxy requests from the deployment's usage ledger; empty deployments never show synthetic values.",
   },
   {
     status: "Next",

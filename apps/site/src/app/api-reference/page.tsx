@@ -88,7 +88,7 @@ export default function ApiReferencePage() {
           OpenAI-Compatible REST API
         </h1>
         <p className="mt-4 text-lg text-muted-foreground">
-          Site proxy base URL: <code className="rounded bg-secondary px-2 py-0.5 text-sm font-mono">https://your-site.example/api</code>
+          Site proxy base URL: <code className="break-all rounded bg-secondary px-2 py-0.5 text-sm font-mono">https://your-site.example/api</code>
         </p>
       </div>
 
@@ -100,7 +100,7 @@ export default function ApiReferencePage() {
         </h2>
         <div className="rounded-xl border border-border/60 bg-card p-6">
           <p className="mb-4 text-sm text-muted-foreground">
-            Site proxy requests require a Better Auth session or user API key in the <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">Authorization</code> header. The proxy forwards only its private gateway key. Direct gateway deployments instead require the server-level <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">ROUTER_API_KEY</code>. Usage history is available at <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">/api/usage</code> for authenticated users.
+            Site proxy requests require a Better Auth session or user API key in the <code className="break-all rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">Authorization</code> header. The proxy forwards only its private gateway key. Direct gateway deployments instead require the server-level <code className="break-all rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">ROUTER_API_KEY</code>. Usage history is available at <code className="break-all rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">/api/usage</code> for authenticated users.
           </p>
           <div className="rounded-lg border border-border/60 bg-secondary/30 overflow-hidden">
             <pre className="overflow-x-auto p-4 text-sm font-mono scrollbar-thin">
@@ -117,11 +117,11 @@ export default function ApiReferencePage() {
           {endpoints.map((endpoint) => (
             <div key={`${endpoint.method}-${endpoint.path}`} className="rounded-xl border border-border/60 bg-card overflow-hidden">
               {/* Header */}
-              <div className="flex items-center gap-3 border-b border-border/60 bg-secondary/30 p-4">
+              <div className="flex min-w-0 flex-wrap items-center gap-3 border-b border-border/60 bg-secondary/30 p-4">
                 <span className={`rounded-md px-2.5 py-1 text-xs font-bold ${methodColors[endpoint.method]}`}>
                   {endpoint.method}
                 </span>
-                <code className="text-sm font-mono font-medium">{endpoint.path}</code>
+                <code className="min-w-0 break-all text-sm font-mono font-medium">{endpoint.path}</code>
                 {endpoint.status === "roadmap" && (
                   <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
                     Roadmap
@@ -135,7 +135,7 @@ export default function ApiReferencePage() {
 
                 {endpoint.params.length > 0 && (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="min-w-[34rem] w-full text-sm">
                       <thead>
                         <tr className="border-b border-border/60">
                           <th className="py-2 pr-4 text-left font-medium text-muted-foreground">Parameter</th>

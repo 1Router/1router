@@ -82,6 +82,12 @@
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  code {
+    overflow-wrap: anywhere;
+  }
+  pre code {
+    overflow-wrap: normal;
+  }
 
   /* Native <dialog> backdrop styling for the mobile Nav drawer and
      /chat model-picker drawer. Keeps the dimmer on-brand. */
@@ -108,9 +114,9 @@
     border-radius: 3px;
   }
 
-  /* CSS-only scroll-progress bar used by /pitch.
-     Uses the modern `animation-timeline: scroll(root)` API; degrades to a
-     zero-width hidden bar in browsers without support. */
+  /* CSS-only scroll-progress bar used by /pitch. Keep the bar static in
+     browsers without scroll-driven animation support rather than showing a
+     misleading completed progress state. */
   @keyframes pitch-progress { to { transform: scaleX(1); } }
   .pitch-progress-bar {
     position: fixed;
@@ -119,10 +125,26 @@
     background: hsl(var(--primary));
     transform: scaleX(0);
     transform-origin: left;
-    animation: pitch-progress linear forwards;
-    animation-timeline: scroll(root);
     z-index: 60;
     pointer-events: none;
     will-change: transform;
+  }
+  @supports (animation-timeline: scroll()) {
+    .pitch-progress-bar {
+      animation: pitch-progress linear forwards;
+      animation-timeline: scroll(root);
+    }
+  }
+
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  .chat-viewport {
+    height: calc(100vh - 3.5rem);
+  }
+  @supports (height: 100dvh) {
+    .chat-viewport {
+      height: calc(100dvh - 3.5rem);
+    }
   }
 }

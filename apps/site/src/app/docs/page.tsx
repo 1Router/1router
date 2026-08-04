@@ -105,7 +105,7 @@ export default function DocsPage() {
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
               <section.icon className="h-5 w-5 text-primary" />
             </div>
-            <div className="flex-1">
+            <div className="min-w-0 flex-1">
               <h3 className="font-semibold group-hover:text-primary">{section.title}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{section.description}</p>
             </div>
@@ -121,7 +121,7 @@ export default function DocsPage() {
           Quickstart
         </h2>
         <p className="mb-6 text-muted-foreground">
-          The managed site proxy accepts Better Auth user API keys at <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">/api/v1</code>. Direct gateway deployments use the server-level <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">ROUTER_API_KEY</code> at their own <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">/v1</code> endpoint.
+          The managed site proxy accepts Better Auth user API keys at <code className="break-all rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">/api/v1</code>. Direct gateway deployments use the server-level <code className="break-all rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">ROUTER_API_KEY</code> at their own <code className="break-all rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">/v1</code> endpoint.
         </p>
 
         <div className="space-y-6">
@@ -167,7 +167,7 @@ export default function DocsPage() {
               <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">Available</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              The current alpha resolves an explicit <code className="rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">{"provider/model-name"}</code> from the shared catalog and routes it to the configured provider. Automatic cost/latency routing is planned.
+              The current alpha resolves an explicit <code className="break-all rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">{"provider/model-name"}</code> from the shared catalog and routes it to the configured provider. Automatic cost/latency routing is planned.
             </p>
           </div>
           <div className="rounded-xl border border-border/60 bg-card p-5">
@@ -185,7 +185,7 @@ export default function DocsPage() {
               <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">Roadmap</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              The control plane records authenticated requests through the Next.js proxy in PostgreSQL, including model, status, duration, and token counts when providers return them. It also enforces an optional durable per-user daily request quota. Direct gateway clients and anonymous demo traffic are not recorded. Per-key limits, organization quotas, token budgets, spend controls, and distributed rate limiting remain roadmap work.
+              The control plane records authenticated requests through the Next.js proxy in PostgreSQL, including model, status, duration, and token counts when providers return them. Verified rankings aggregate successful records from this ledger, while direct gateway clients and anonymous traffic remain excluded. Downstream applications can register an explicit slug and opt into the public showcase through the account page. Per-key limits, organization quotas, token budgets, spend controls, and distributed rate limiting remain roadmap work.
             </p>
           </div>
         </div>

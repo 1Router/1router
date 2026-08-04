@@ -163,7 +163,7 @@ export function Nav() {
       <dialog
         ref={drawerRef}
         aria-label="Site navigation"
-        className="fixed inset-y-0 right-0 m-0 h-full w-72 max-w-full border-l border-border bg-background p-0 text-foreground shadow-2xl translate-x-full transition-transform duration-200 ease-out open:translate-x-0 md:hidden"
+        className="fixed inset-y-0 right-0 m-0 h-full w-72 max-w-full border-l border-border bg-background p-0 pb-safe text-foreground shadow-2xl translate-x-full transition-transform duration-200 ease-out open:translate-x-0 md:hidden"
       >
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">

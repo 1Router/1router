@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ChevronRight, TrendingUp, Sparkles } from "lucide-react"
+import { ChevronRight, Sparkles } from "lucide-react"
 import { trendingModels, modelUrl, providerColors } from "@1router/models"
 import { cn } from "@/lib/utils"
 
@@ -12,12 +12,12 @@ export function TrendingModels() {
         <div className="mb-8 flex items-end justify-between">
           <div>
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-primary">
-              <TrendingUp className="h-4 w-4" />
-              Trending Now
+              <Sparkles className="h-4 w-4" />
+              Catalog Highlights
             </div>
-            <h2 className="text-2xl font-bold tracking-tight">Popular Models</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Featured Models</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Most-used models across the 1Router platform
+              A curated selection from the shared model catalog
             </p>
           </div>
           <Link
@@ -105,7 +105,7 @@ export function TrendingModels() {
                 )}
               </div>
 
-              {/* Sparkle indicator for new/trending */}
+              {/* Subtle catalog-highlight indicator */}
               <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
                 <Sparkles className="h-4 w-4 text-primary" />
               </div>

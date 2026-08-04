@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft, ArrowRight, Cpu, DollarSign, Calendar, Code2,
-  FileText, Eye, Zap, Download, Globe, MessageSquare,
+  FileText, Zap, Download, Globe, MessageSquare,
   Check, Copy,
 } from 'lucide-react';
 import { type Model, providerUrl, providerColors } from '@1router/models';
@@ -127,7 +127,7 @@ export function ModelDetailClient({ model }: { model: Model }) {
   return (
     <div className="container py-8">
       {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+      <nav className="mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <Link href="/" className="hover:text-foreground">Home</Link>
         <span>/</span>
         <Link href="/models" className="hover:text-foreground">Models</Link>
@@ -158,7 +158,7 @@ export function ModelDetailClient({ model }: { model: Model }) {
             {model.provider.charAt(0)}
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight">{model.name}</h1>
               <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                 {model.series}
@@ -212,12 +212,6 @@ export function ModelDetailClient({ model }: { model: Model }) {
             <span className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
               <FileText className="h-3.5 w-3.5" />
               {model.license} license
-            </span>
-          )}
-          {model.apiCalls30d && (
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
-              <Eye className="h-3.5 w-3.5" />
-              {model.apiCalls30d} API calls / 30d
             </span>
           )}
         </div>
@@ -290,7 +284,7 @@ export function ModelDetailClient({ model }: { model: Model }) {
 
             {/* Model ID */}
             <div className="mb-4 flex items-center gap-2 rounded-lg border border-border/60 bg-secondary/30 px-4 py-3">
-              <code className="text-sm font-mono font-medium">{model.id}</code>
+              <code className="min-w-0 break-all text-sm font-mono font-medium">{model.id}</code>
               <button
                 type="button"
                 onClick={() => navigator.clipboard.writeText(model.id)}

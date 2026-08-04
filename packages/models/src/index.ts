@@ -82,7 +82,13 @@ export const capabilityOptions = [
   'retrieval',
 ];
 
-export const trendingModels = models.filter((m) => m.trending);
+// Featured cards are derived from the catalog's release dates rather than
+// presenting an unverified usage claim. A future ingestion job can replace
+// this with a sourced popularity signal without changing the UI contract.
+export const trendingModels = [...models]
+  .filter((model) => Boolean(model.releaseDate) && !model.deprecated)
+  .sort((a, b) => (b.releaseDate || '').localeCompare(a.releaseDate || ''))
+  .slice(0, 6);
 
 export const downloadableModels = models.filter((m) => m.downloadable);
 export const freeEndpointModels = models.filter((m) => m.freeEndpoint);
