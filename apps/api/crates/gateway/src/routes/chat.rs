@@ -76,7 +76,7 @@ pub async fn chat_completions(
     // ════════════════════════════════════════════════════════════════════
     if provider.is_passthrough() {
         // Override the model id: the client sent "openai/gpt-4o" but the
-        // upstream expects just "gpt-4o" (or the full id for OpenRouter).
+        // direct upstream expects just "gpt-4o".
         // provider_model already has the right value from format_model_id().
         let mut req = request;
         req.model = provider_model;
@@ -133,10 +133,6 @@ async fn passthrough_proxy(
     for (name, value) in provider.extra_headers() {
         req_builder = req_builder.header(name, value);
     }
-    for (name, value) in provider.runtime_extra_headers() {
-        req_builder = req_builder.header(name, value);
-    }
-
     let upstream = req_builder.body(body_bytes);
 
     let response = match upstream.send().await {
@@ -251,10 +247,6 @@ async fn transform_proxy(
     for (name, value) in provider.extra_headers() {
         req_builder = req_builder.header(name, value);
     }
-    for (name, value) in provider.runtime_extra_headers() {
-        req_builder = req_builder.header(name, value);
-    }
-
     let upstream = req_builder.json(&body);
 
     let response = match upstream.send().await {

@@ -68,26 +68,110 @@ spec:
               name: api-secrets
               key: deepseek-api-key
               optional: true
+        - name: QWEN_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: qwen-api-key
+              optional: true
+        - name: MISTRAL_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: mistral-api-key
+              optional: true
+        - name: PERPLEXITY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: perplexity-api-key
+              optional: true
+        - name: NVIDIA_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: nvidia-api-key
+              optional: true
         - name: GROQ_API_KEY
           valueFrom:
             secretKeyRef:
               name: api-secrets
               key: groq-api-key
               optional: true
-        - name: OPENROUTER_API_KEY
+        - name: MINIMAX_API_KEY
           valueFrom:
             secretKeyRef:
               name: api-secrets
-              key: openrouter-api-key
+              key: minimax-api-key
               optional: true
-        # Optional OpenRouter app attribution. Keep these aligned with the
-        # deployment's actual public URL and product name.
-        - name: OPENROUTER_HTTP_REFERER
-          value: "https://1router.com"
-        - name: OPENROUTER_TITLE
-          value: "1Router"
-        - name: OPENROUTER_CATEGORIES
-          value: "technology"
+        - name: MOONSHOT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: moonshot-api-key
+              optional: true
+        - name: STEPFUN_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: stepfun-api-key
+              optional: true
+        - name: ZAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: zai-api-key
+              optional: true
+        - name: ARK_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: ark-api-key
+              optional: true
+        - name: UPSTAGE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: upstage-api-key
+              optional: true
+        - name: ABACUS_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: abacus-api-key
+              optional: true
+        - name: SARVAM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: sarvam-api-key
+              optional: true
+        - name: AZURE_OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: azure-openai-api-key
+              optional: true
+        - name: AZURE_OPENAI_ENDPOINT
+          value: ""
+        - name: AZURE_OPENAI_API_VERSION
+          value: "2024-10-21"
+        - name: STOCKMARK_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: stockmark-api-key
+              optional: true
+        - name: STOCKMARK_API_BASE
+          value: ""
+        - name: NEVERSLEEP_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: neversleep-api-key
+              optional: true
+        - name: NEVERSLEEP_API_BASE
+          value: ""
         resources:
           requests:
             cpu: "100m"
@@ -124,5 +208,15 @@ spec:
 #       --from-literal=xai-api-key='xai-...' \
 #       --from-literal=deepseek-api-key='sk-...' \
 #       --from-literal=groq-api-key='gsk_...' \
-#       --from-literal=openrouter-api-key='sk-or-...'
+#       --from-literal=minimax-api-key='...' \
+#       --from-literal=moonshot-api-key='sk-...' \
+#       --from-literal=stepfun-api-key='...' \
+#       --from-literal=zai-api-key='...' \
+#       --from-literal=ark-api-key='...' \
+#       --from-literal=upstage-api-key='...' \
+#       --from-literal=abacus-api-key='...' \
+#       --from-literal=sarvam-api-key='...' \
+#       --from-literal=azure-openai-api-key='...' \
+#       --from-literal=stockmark-api-key='...' \
+#       --from-literal=neversleep-api-key='...' \
 # ======================================================================

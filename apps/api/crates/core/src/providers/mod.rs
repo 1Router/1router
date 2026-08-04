@@ -19,25 +19,31 @@ pub fn config_for_slug(slug: &str) -> Option<&'static dyn ChatProviderConfig> {
         "google" => Some(&google::GOOGLE_CHAT_CONFIG),
         "xai" => Some(&xai::XAI_CHAT_CONFIG),
 
-        // OpenAI-compatible providers — each with its own base URL + key
+        // OpenAI-compatible providers — each with its own direct base URL + key
         "deepseek-ai" => Some(&openai::DEEPSEEK_CHAT_CONFIG),
         "qwen" => Some(&openai::QWEN_CHAT_CONFIG),
         "mistralai" => Some(&openai::MISTRAL_CHAT_CONFIG),
         "perplexity" => Some(&openai::PERPLEXITY_CHAT_CONFIG),
         "nvidia" => Some(&openai::NVIDIA_CHAT_CONFIG),
+        "minimaxai" => Some(&openai::MINIMAX_CHAT_CONFIG),
+        "moonshotai" => Some(&openai::MOONSHOT_CHAT_CONFIG),
+        "stepfun-ai" => Some(&openai::STEPFUN_CHAT_CONFIG),
+        "z-ai" => Some(&openai::ZAI_CHAT_CONFIG),
+        "bytedance" => Some(&openai::BYTEDANCE_CHAT_CONFIG),
+        "upstage" => Some(&openai::UPSTAGE_CHAT_CONFIG),
+        "abacusai" => Some(&openai::ABACUS_CHAT_CONFIG),
+        "sarvamai" => Some(&openai::SARVAM_CHAT_CONFIG),
+        "microsoft" => Some(&openai::AZURE_OPENAI_CHAT_CONFIG),
+        "stockmark" => Some(&openai::STOCKMARK_CHAT_CONFIG),
+        "neversleep" => Some(&openai::NEVERSLEEP_CHAT_CONFIG),
 
         // Meta / NousResearch are served via Groq or Together — default to
-        // Groq for low latency. Override via env if needed.
+        // Groq for low latency. Override via an explicit provider deployment
+        // when the model is available from another direct provider.
         "meta" | "nousresearch" => Some(&openai::GROQ_CHAT_CONFIG),
 
-        // Fall through to OpenRouter for less-common providers that haven't
-        // been given an explicit endpoint yet. OpenRouter aggregates many
-        // models behind an OpenAI-compatible API.
-        "minimaxai" | "moonshotai" | "stepfun-ai" | "z-ai" | "bytedance" | "microsoft"
-        | "upstage" | "abacusai" | "stockmark" | "sarvamai" | "neversleep" => {
-            Some(&openai::OPENROUTER_CHAT_CONFIG)
-        }
-
+        // Every other catalog provider must have a direct adapter. Do not
+        // silently route an unknown provider through another gateway.
         _ => None,
     }
 }
@@ -55,19 +61,19 @@ pub fn supported_slugs() -> &'static [&'static str] {
         "mistralai",
         "perplexity",
         "nvidia",
-        "meta",
-        "nousresearch",
         "minimaxai",
         "moonshotai",
         "stepfun-ai",
         "z-ai",
         "bytedance",
-        "microsoft",
         "upstage",
         "abacusai",
-        "stockmark",
         "sarvamai",
+        "microsoft",
+        "stockmark",
         "neversleep",
+        "meta",
+        "nousresearch",
     ]
 }
 

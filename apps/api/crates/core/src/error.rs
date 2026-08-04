@@ -25,6 +25,9 @@ pub enum CoreError {
     #[error("authentication failed: {0}")]
     Auth(String),
 
+    #[error("configuration error: {0}")]
+    Config(String),
+
     #[error("network error: {0}")]
     Network(String),
 

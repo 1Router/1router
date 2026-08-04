@@ -45,11 +45,11 @@ per-key/org quotas and spend limits remain control-plane roadmap work.
 
 Provider credentials remain server-side environment variables. Supported
 provider adapters include OpenAI-compatible providers, Anthropic, Google,
-xAI, DeepSeek, Qwen, Mistral, Groq, Perplexity, NVIDIA NIM, and OpenRouter.
-When routing through OpenRouter, optional attribution can be configured with
-`OPENROUTER_HTTP_REFERER`, `OPENROUTER_TITLE`, and
-`OPENROUTER_CATEGORIES`; these are sent as OpenRouter's `HTTP-Referer`,
-`X-OpenRouter-Title`, and `X-OpenRouter-Categories` headers.
+xAI, DeepSeek, Qwen, Mistral, Groq, Perplexity, NVIDIA NIM, MiniMax, Moonshot,
+StepFun, Z.ai, ByteDance Ark, Upstage, Abacus.AI, Sarvam AI, Azure OpenAI,
+and operator-configured OpenAI-compatible deployments. The gateway routes
+only to configured provider APIs; it does not depend on another aggregator or
+silently proxy unsupported catalog entries through one.
 
 Anthropic and Google currently use a fake-stream compatibility fallback: the
 full upstream response is collected and emitted as one OpenAI-shaped SSE chunk.
@@ -63,7 +63,10 @@ Self-hosters can run this gateway without the managed service or Stripe:
 export ROUTER_API_KEY=router_sk_test
 export ROUTER_IDENTITY_SECRET=$(openssl rand -hex 32)
 export OPENAI_API_KEY=sk-...
+# Optional direct providers use their own *_API_KEY environment variables.
+# Azure requires AZURE_OPENAI_ENDPOINT and optionally AZURE_OPENAI_API_VERSION.
 BIND_ADDR=0.0.0.0:3001 cargo run --manifest-path apps/api/Cargo.toml
+
 ```
 
 The gateway can be deployed with Docker or Kubernetes. Provider credentials,

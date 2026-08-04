@@ -76,9 +76,7 @@ pub trait ChatProviderConfig: Sync {
 
     /// Format the model identifier for the upstream request body.
     /// Most providers want just the model name without the provider slug
-    /// prefix (e.g. "gpt-4o"). Aggregators like OpenRouter want the full
-    /// prefixed ID (e.g. "minimaxai/minimax-01") so they know which
-    /// upstream to route to.
+    /// prefix (e.g. "gpt-4o").
     /// Default: strip the `providerSlug/` prefix.
     fn format_model_id(&self, full_id: &str) -> String {
         full_id
@@ -106,14 +104,6 @@ pub trait ChatProviderConfig: Sync {
     /// Extra headers the provider requires (e.g. anthropic-version).
     /// Returns an empty vec by default; providers override as needed.
     fn extra_headers(&self) -> Vec<(&'static str, &'static str)> {
-        Vec::new()
-    }
-
-    /// Runtime-configured headers whose values come from the deployment
-    /// environment rather than being compile-time provider requirements.
-    /// This keeps optional attribution and tenant-specific settings out of
-    /// the static provider config.
-    fn runtime_extra_headers(&self) -> Vec<(String, String)> {
         Vec::new()
     }
 }

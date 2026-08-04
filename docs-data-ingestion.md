@@ -50,45 +50,32 @@ resolve to an app owned by that identity. Do not infer app names from
 `User-Agent`, `Referer`, or arbitrary client headers. The same explicit
 attribution pattern can later be extended to organization-owned projects.
 
-## OpenRouter comparison
+## Independent catalog policy
 
-OpenRouter's documented model endpoint is:
+1Router is the catalog and routing layer, not a downstream of another
+aggregator. The refresh pipeline must use direct provider APIs and official
+provider documentation, then normalize and validate the result before updating
+`packages/models/models.json`.
 
-```text
-GET https://openrouter.ai/api/v1/models
-```
+Do not use another gateway as a catalog source, pricing source, ranking source,
+or hidden fallback. Provider metadata must identify the direct provider and its
+canonical model page. 1Router's own rankings come from the authenticated
+`router_usage` ledger, not from an external leaderboard.
 
-It provides live model metadata and pricing fields. It is a useful upstream for
-refreshing a normalized catalog, but its schema must be mapped into the
-1Router catalog and validated before publishing. Preserve source URLs,
-retrieval time, and an explicit source/provider field rather than silently
-replacing hand-curated metadata.
-
-When 1Router routes a request through OpenRouter, optional app attribution
-headers are supported by the gateway:
-
-- `OPENROUTER_HTTP_REFERER` -> `HTTP-Referer`
-- `OPENROUTER_TITLE` -> `X-OpenRouter-Title`
-- `OPENROUTER_CATEGORIES` -> `X-OpenRouter-Categories`
-
-These identify the 1Router application to OpenRouter. They do **not** provide
-1Router with OpenRouter's private app leaderboard data.
-
-OpenRouter documents model metadata and attribution. It may also expose
-restricted or authenticated datasets/ranking surfaces, but those are not a
-public general-purpose app-directory or app-traffic ingestion API for this
-project. Do not scrape the OpenRouter website for rankings. If we want an
-OpenRouter-derived model popularity view, keep it clearly labeled as external
-data and use an officially supported dataset/API only after confirming its
-access and redistribution terms.
+The catalog remains a checked-in, reproducible snapshot for self-hosted
+installations. A future refresh job may collect direct sources such as provider
+model-list endpoints, official pricing pages, and community-submitted provider
+manifests, but every imported field must retain its source URL and retrieval
+time for review.
 
 ## Recommended ingestion order
 
-1. **Catalog refresh job**: fetch `/api/v1/models` daily, validate IDs/pricing,
-   store a raw snapshot plus normalized records, and open a reviewable catalog
-   update. Preserve source URL, retrieved-at timestamp, and field provenance;
-   remove or quarantine stale usage metrics. Keep the checked-in JSON as the
-   reproducible fallback for self-hosting.
+1. **Catalog refresh job**: fetch approved direct provider model-list endpoints
+   and official pricing metadata daily, validate IDs/pricing, store raw snapshots
+   plus normalized records, and open a reviewable catalog update. Preserve
+   source URL, retrieved-at timestamp, and field provenance; remove or quarantine
+   stale usage metrics. Keep the checked-in JSON as the reproducible fallback
+   for self-hosting.
 2. **First-party usage aggregation**: the initial public model aggregation is
    now served from indexed `router_usage` queries at `/api/rankings`, with a
    clear `dataSource`, reporting note, and empty state. Add materialized hourly/
@@ -99,8 +86,10 @@ access and redistribution terms.
 4. **Public analytics API**: rankings and opted-in showcase records are now
    served as cached control-plane APIs with no raw prompt/content data. Add
    rate limiting, abuse protection, and an admin moderation workflow next.
-5. **External sources**: add OpenRouter or other provider datasets as separate,
-   attributed data sources rather than mixing them with first-party usage.
+5. **Community providers**: accept signed or manually reviewed provider
+   manifests as separate catalog inputs. Keep provider submissions distinct from
+   first-party usage until the deployment has passed health, security, and policy
+   checks.
 
 ## Self-hosted behavior
 
