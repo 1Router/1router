@@ -7,13 +7,34 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
+COMPOSE_FILE="${ROOT_DIR}/docker-compose.self-hosted.yml"
 
 : "${DATABASE_URL:?Set DATABASE_URL to the PostgreSQL database to initialize}"
 
-if ! command -v psql >/dev/null 2>&1; then
-  echo "psql is required. Install the PostgreSQL client or run this script in the postgres container." >&2
+run_psql() {
+  if command -v psql >/dev/null 2>&1; then
+    psql "$DATABASE_URL" "$@"
+    return
+  fi
+
+  local expected_port="${POSTGRES_HOST_PORT:-5433}"
+  case "$DATABASE_URL" in
+    postgres://postgres:postgres@localhost:"$expected_port"/onerouter*|postgres://postgres:postgres@127.0.0.1:"$expected_port"/onerouter*)
+      ;;
+    *)
+      echo "Host psql is unavailable and DATABASE_URL is not the local Compose database; refusing the Docker fallback." >&2
+      exit 1
+      ;;
+  esac
+
+  if command -v docker >/dev/null 2>&1 && docker compose -f "$COMPOSE_FILE" ps --status running postgres >/dev/null 2>&1; then
+    docker compose -f "$COMPOSE_FILE" exec -T postgres psql -U postgres -d onerouter "$@"
+    return
+  fi
+
+  echo "psql is required. Install the PostgreSQL client, or start the self-hosted Postgres container so Docker can run psql inside it." >&2
   exit 1
-fi
+}
 
 SCHEMA_FILE="$(mktemp "${TMPDIR:-/tmp}/1router-auth-schema.XXXXXX.sql")"
 cleanup() {
@@ -27,7 +48,7 @@ bun x @better-auth/cli@1.4.21 generate \
   --yes
 
 printf 'Applying Better Auth schema to %s\n' "${DATABASE_URL%%\?*}"
-psql "$DATABASE_URL" --set ON_ERROR_STOP=1 --file "$SCHEMA_FILE"
+run_psql --set ON_ERROR_STOP=1 < "$SCHEMA_FILE"
 
 # Application tables are maintained by explicit, versioned migrations so
 # upgrades can add columns/indexes safely instead of relying on CREATE TABLE IF

@@ -5,8 +5,10 @@ services:
       POSTGRES_DB: onerouter
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    # Keep the container's PostgreSQL port at 5432, but use 5433 on the host
+    # so local installations can coexist with another PostgreSQL container.
     ports:
-      - "5432:5432"
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
       - onerouter-postgres:/var/lib/postgresql/data
     healthcheck:

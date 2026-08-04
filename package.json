@@ -10,7 +10,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "turbo run dev --filter=@1router/site",
+    "dev": "bun run scripts/dev.ts",
     "dev:site": "turbo run dev --filter=@1router/site",
     "dev:api": "cargo run --manifest-path apps/api/Cargo.toml",
     "build": "turbo run build && cargo build --release --manifest-path apps/api/Cargo.toml",
