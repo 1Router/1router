@@ -171,11 +171,7 @@ impl ChatProviderConfig for AnthropicChatConfig {
         })
     }
 
-    fn complete_url(
-        &self,
-        api_base_override: Option<&str>,
-        _model: &str,
-    ) -> CoreResult<String> {
+    fn complete_url(&self, api_base_override: Option<&str>, _model: &str) -> CoreResult<String> {
         let base = api_base_override.unwrap_or(self.api_base());
         Ok(format!("{base}/messages"))
     }
@@ -188,9 +184,7 @@ impl ChatProviderConfig for AnthropicChatConfig {
         api_key
             .map(|s| s.to_string())
             .or_else(|| env("ANTHROPIC_API_KEY"))
-            .ok_or_else(|| {
-                CoreError::Auth("no API key: set ANTHROPIC_API_KEY env var".to_string())
-            })
+            .ok_or_else(|| CoreError::Auth("no API key: set ANTHROPIC_API_KEY env var".to_string()))
     }
 
     fn api_key_env(&self) -> &str {

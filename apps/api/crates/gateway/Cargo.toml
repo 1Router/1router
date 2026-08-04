@@ -15,6 +15,7 @@ axum = { workspace = true, features = ["json"] }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+hmac = { workspace = true }
 sha2 = { workspace = true }
 subtle = { workspace = true }
 tokio = { workspace = true }

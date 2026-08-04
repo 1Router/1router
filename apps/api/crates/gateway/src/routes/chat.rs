@@ -1,5 +1,5 @@
 use axum::body::Body;
-use axum::extract::State;
+use axum::extract::{Extension, State};
 use axum::http::{HeaderMap, HeaderName, HeaderValue, StatusCode};
 use axum::response::sse::{Event, KeepAlive, Sse};
 use axum::response::{IntoResponse, Response};
@@ -30,8 +30,12 @@ use crate::state::AppState;
 ///    for format translation.
 pub async fn chat_completions(
     State(state): State<AppState>,
+    identity: Option<Extension<crate::internal_auth::VerifiedIdentity>>,
     Json(request): Json<ChatCompletionRequest>,
 ) -> Response {
+    if let Some(Extension(identity)) = identity {
+        tracing::debug!(identity = %identity.identity, "authenticated control-plane identity");
+    }
     let is_stream = request.stream;
     let model_id = request.model.clone();
 
@@ -208,7 +212,12 @@ async fn passthrough_proxy(
     let stream = response.bytes_stream();
     let body = Body::from_stream(stream);
 
-    (StatusCode::OK, headers, body).into_response()
+    (
+        StatusCode::from_u16(status.as_u16()).unwrap_or(StatusCode::BAD_GATEWAY),
+        headers,
+        body,
+    )
+        .into_response()
 }
 
 /// Slow path: transform request/response for non-OpenAI providers.
@@ -332,10 +341,11 @@ async fn transform_proxy(
                     },
                     finish_reason: None,
                 }],
+                usage: None,
             };
-            events.push(Ok(Event::default().data(
-                serde_json::to_string(&content_chunk).unwrap_or_default(),
-            )));
+            events.push(Ok(
+                Event::default().data(serde_json::to_string(&content_chunk).unwrap_or_default())
+            ));
 
             let finish_chunk = onerouter_core::types::ChatCompletionChunk {
                 id: id.clone(),
@@ -347,10 +357,25 @@ async fn transform_proxy(
                     delta: onerouter_core::types::Delta::default(),
                     finish_reason: choice.finish_reason,
                 }],
+                usage: None,
             };
-            events.push(Ok(Event::default().data(
-                serde_json::to_string(&finish_chunk).unwrap_or_default(),
-            )));
+            events.push(Ok(
+                Event::default().data(serde_json::to_string(&finish_chunk).unwrap_or_default())
+            ));
+        }
+
+        if let Some(usage) = transformed.usage {
+            let usage_chunk = onerouter_core::types::ChatCompletionChunk {
+                id,
+                object: "chat.completion.chunk".to_string(),
+                created,
+                model: model_name,
+                choices: Vec::new(),
+                usage: Some(usage),
+            };
+            events.push(Ok(
+                Event::default().data(serde_json::to_string(&usage_chunk).unwrap_or_default())
+            ));
         }
 
         events.push(Ok(Event::default().data("[DONE]")));

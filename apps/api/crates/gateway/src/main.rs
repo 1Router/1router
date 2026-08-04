@@ -1,4 +1,5 @@
 mod auth;
+mod internal_auth;
 mod io;
 mod routes;
 mod state;
@@ -73,7 +74,9 @@ async fn async_main() {
     // same-origin site proxy does not need CORS, but keeping this configurable
     // makes the API usable from local tools without opening it to every site.
     let allowed_origins: Vec<String> = std::env::var("CORS_ALLOWED_ORIGINS")
-        .unwrap_or_else(|_| "http://localhost:3000,https://1router.com,https://www.1router.com".to_string())
+        .unwrap_or_else(|_| {
+            "http://localhost:3000,https://1router.com,https://www.1router.com".to_string()
+        })
         .split(',')
         .map(str::trim)
         .filter(|origin| !origin.is_empty())

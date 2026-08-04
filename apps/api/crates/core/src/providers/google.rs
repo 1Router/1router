@@ -128,7 +128,10 @@ impl ChatProviderConfig for GoogleChatConfig {
             });
 
         let usage = response_json.get("usageMetadata").map(|u| {
-            let prompt = u.get("promptTokenCount").and_then(|v| v.as_u64()).unwrap_or(0);
+            let prompt = u
+                .get("promptTokenCount")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(0);
             let completion = u
                 .get("candidatesTokenCount")
                 .and_then(|v| v.as_u64())
@@ -173,11 +176,7 @@ impl ChatProviderConfig for GoogleChatConfig {
         })
     }
 
-    fn complete_url(
-        &self,
-        api_base_override: Option<&str>,
-        model: &str,
-    ) -> CoreResult<String> {
+    fn complete_url(&self, api_base_override: Option<&str>, model: &str) -> CoreResult<String> {
         let base = api_base_override.unwrap_or(self.api_base());
         // Google's endpoint is model-specific: /models/{model}:generateContent
         Ok(format!("{base}/models/{model}:generateContent"))
@@ -191,9 +190,7 @@ impl ChatProviderConfig for GoogleChatConfig {
         api_key
             .map(|s| s.to_string())
             .or_else(|| env("GOOGLE_API_KEY"))
-            .ok_or_else(|| {
-                CoreError::Auth("no API key: set GOOGLE_API_KEY env var".to_string())
-            })
+            .ok_or_else(|| CoreError::Auth("no API key: set GOOGLE_API_KEY env var".to_string()))
     }
 
     fn api_key_env(&self) -> &str {

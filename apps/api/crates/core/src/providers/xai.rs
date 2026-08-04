@@ -1,8 +1,8 @@
 use serde_json::{Map, Value};
 
 use crate::chat::transformation::{AuthStrategy, ChatProviderConfig};
-use crate::CoreError;
 use crate::types::{ChatCompletionRequest, ChatCompletionResponse};
+use crate::CoreError;
 use crate::CoreResult;
 
 /// xAI (Grok) config.
@@ -49,11 +49,7 @@ impl ChatProviderConfig for XaiChatConfig {
         Ok(serde_json::from_value(response_json)?)
     }
 
-    fn complete_url(
-        &self,
-        api_base_override: Option<&str>,
-        _model: &str,
-    ) -> CoreResult<String> {
+    fn complete_url(&self, api_base_override: Option<&str>, _model: &str) -> CoreResult<String> {
         let base = api_base_override.unwrap_or(self.api_base());
         Ok(format!("{base}/chat/completions"))
     }

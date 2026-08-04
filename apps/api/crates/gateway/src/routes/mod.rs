@@ -24,8 +24,5 @@ pub fn app(state: AppState) -> Router {
             crate::auth::require_master_key,
         ));
 
-    Router::new()
-        .merge(public)
-        .merge(authed)
-        .with_state(state)
+    Router::new().merge(public).merge(authed).with_state(state)
 }

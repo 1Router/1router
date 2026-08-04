@@ -115,10 +115,7 @@ impl ChatProviderConfig for OpenAiChatConfig {
         // params as-is.
         let mut body = serde_json::Map::new();
         body.insert("model".into(), Value::String(model.to_string()));
-        body.insert(
-            "messages".into(),
-            serde_json::to_value(&request.messages)?,
-        );
+        body.insert("messages".into(), serde_json::to_value(&request.messages)?);
         body.insert("stream".into(), Value::Bool(request.stream));
 
         for (k, v) in optional_params {
@@ -137,11 +134,7 @@ impl ChatProviderConfig for OpenAiChatConfig {
         Ok(serde_json::from_value(response_json)?)
     }
 
-    fn complete_url(
-        &self,
-        api_base_override: Option<&str>,
-        _model: &str,
-    ) -> CoreResult<String> {
+    fn complete_url(&self, api_base_override: Option<&str>, _model: &str) -> CoreResult<String> {
         let base = api_base_override.unwrap_or(self.api_base);
         Ok(format!("{base}/chat/completions"))
     }

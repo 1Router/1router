@@ -33,9 +33,10 @@ pub fn config_for_slug(slug: &str) -> Option<&'static dyn ChatProviderConfig> {
         // Fall through to OpenRouter for less-common providers that haven't
         // been given an explicit endpoint yet. OpenRouter aggregates many
         // models behind an OpenAI-compatible API.
-        "minimaxai" | "moonshotai" | "stepfun-ai" | "z-ai" | "bytedance"
-        | "microsoft" | "upstage" | "abacusai" | "stockmark" | "sarvamai"
-        | "neversleep" => Some(&openai::OPENROUTER_CHAT_CONFIG),
+        "minimaxai" | "moonshotai" | "stepfun-ai" | "z-ai" | "bytedance" | "microsoft"
+        | "upstage" | "abacusai" | "stockmark" | "sarvamai" | "neversleep" => {
+            Some(&openai::OPENROUTER_CHAT_CONFIG)
+        }
 
         _ => None,
     }

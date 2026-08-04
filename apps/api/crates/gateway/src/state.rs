@@ -30,6 +30,11 @@ pub struct AppState {
     /// Computed once at startup so auth doesn't need to hash the expected
     /// key on every request — only the incoming token is hashed.
     pub master_key_hash: Option<[u8; 32]>,
+
+    /// Optional secret used to authenticate identity assertions from the
+    /// Next.js control plane. It is separate from the master-key hash because
+    /// HMAC verification needs the secret material at request time.
+    pub identity_secret: Option<Arc<str>>,
 }
 
 impl AppState {
@@ -76,13 +81,26 @@ impl AppState {
         // This avoids calling std::env::var() AND hashing the expected key
         // on every single request. The auth middleware only needs to hash
         // the incoming token and compare.
-        let master_key = std::env::var("ROUTER_API_KEY").ok().filter(|s| !s.is_empty());
+        let master_key = std::env::var("ROUTER_API_KEY")
+            .ok()
+            .filter(|s| !s.is_empty());
         let master_key_hash = master_key.as_ref().map(|k| {
             let hash = Sha256::digest(k.as_bytes());
             let mut arr = [0u8; 32];
             arr.copy_from_slice(&hash);
             arr
         });
+
+        let identity_secret = std::env::var("ROUTER_IDENTITY_SECRET")
+            .ok()
+            .filter(|secret| !secret.is_empty())
+            .map(|secret| Arc::from(secret.as_str()));
+
+        if identity_secret.is_none() {
+            tracing::warn!(
+                "no ROUTER_IDENTITY_SECRET configured — gateway identity assertions are disabled"
+            );
+        }
 
         // Warn if no key is configured (fail-closed at auth time)
         if master_key_hash.is_none() {
@@ -115,6 +133,7 @@ impl AppState {
             client,
             provider_keys: Arc::new(provider_keys),
             master_key_hash,
+            identity_secret,
         }
     }
 }

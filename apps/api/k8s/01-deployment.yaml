@@ -31,6 +31,12 @@ spec:
             secretKeyRef:
               name: api-secrets
               key: router-api-key
+        - name: ROUTER_IDENTITY_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: router-identity-secret
+              optional: true
         # ── Provider API keys (set the ones you use) ──────────────────────
         - name: OPENAI_API_KEY
           valueFrom:
@@ -103,6 +109,7 @@ spec:
 #     kubectl create secret generic api-secrets \
 #       --namespace=1router \
 #       --from-literal=router-api-key='router_sk_...' \
+#       --from-literal=router-identity-secret='replace-with-a-second-secret' \
 #       --from-literal=openai-api-key='sk-...' \
 #       --from-literal=anthropic-api-key='sk-ant-...' \
 #       --from-literal=google-api-key='AIza...' \

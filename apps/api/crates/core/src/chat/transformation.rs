@@ -62,11 +62,7 @@ pub trait ChatProviderConfig: Sync {
     /// Build the full URL for the upstream request.
     /// `api_base_override` lets the caller point at a different endpoint
     /// (e.g. a self-hosted OpenAI-compatible server).
-    fn complete_url(
-        &self,
-        api_base_override: Option<&str>,
-        model: &str,
-    ) -> CoreResult<String>;
+    fn complete_url(&self, api_base_override: Option<&str>, model: &str) -> CoreResult<String>;
 
     /// Resolve the API key: explicit param takes priority, then env var.
     fn resolve_api_key(

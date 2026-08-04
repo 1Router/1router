@@ -1,7 +1,9 @@
 use axum::extract::{Request, State};
+use axum::http::StatusCode;
 use axum::middleware::Next;
 use axum::response::Response;
 use sha2::{Digest, Sha256};
+use std::time::{SystemTime, UNIX_EPOCH};
 use subtle::ConstantTimeEq;
 
 use crate::routes::error_response;
@@ -9,62 +11,89 @@ use crate::state::AppState;
 
 /// Extract and validate the Bearer token from the Authorization header.
 ///
-/// Performance: the expected key hash is pre-computed once at startup in
-/// AppState and stored as `[u8; 32]`. On each request we only:
-/// 1. Extract the Bearer token from the header (zero-alloc string slice)
-/// 2. SHA-256 hash the incoming token (unavoidable — we can't store the
-///    plaintext key to compare against)
-/// 3. Constant-time compare two 32-byte arrays
-///
-/// This avoids std::env::var() on every request and avoids hashing the
-/// expected key on every request.
+/// The master key is hashed at startup in `AppState`; each request only hashes
+/// the presented token and compares the two digests in constant time. If the
+/// private site-to-gateway identity headers are present, they are also checked
+/// before the request reaches a handler.
 pub async fn require_master_key(
     State(state): State<AppState>,
     req: Request,
     next: Next,
 ) -> Result<Response, Response> {
-    // If no key is configured, reject all requests (fail-closed)
     let expected_hash = match &state.master_key_hash {
-        Some(h) => h,
+        Some(hash) => hash,
         None => {
             return Err(error_response(
-                axum::http::StatusCode::UNAUTHORIZED,
+                StatusCode::UNAUTHORIZED,
                 "Server is not configured for authentication. Contact the administrator.",
             ));
         }
     };
 
-    // Extract the Bearer token from the Authorization header.
-    // We work with &str (no allocation) until the very end.
     let token = req
         .headers()
         .get("authorization")
-        .and_then(|v| v.to_str().ok())
-        .and_then(|s| s.strip_prefix("Bearer "))
-        .map(|s| s.trim());
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.strip_prefix("Bearer "))
+        .map(str::trim);
 
     let token = match token {
-        Some(t) if !t.is_empty() => t,
+        Some(token) if !token.is_empty() => token,
         _ => {
             return Err(error_response(
-                axum::http::StatusCode::UNAUTHORIZED,
+                StatusCode::UNAUTHORIZED,
                 "Missing or invalid Authorization header. Expected: Bearer <api-key>",
             ));
         }
     };
 
-    // Hash the incoming token and compare in constant time.
-    // The expected hash is pre-computed at startup — we only hash the
-    // incoming token (unavoidable, since we can't store the plaintext key).
     let token_hash = Sha256::digest(token.as_bytes());
-
-    if expected_hash.ct_eq(&token_hash).into() {
-        Ok(next.run(req).await)
-    } else {
+    if !bool::from(expected_hash.ct_eq(&token_hash)) {
         tracing::warn!("authentication failed: invalid API key");
-        Err(error_response(
-            axum::http::StatusCode::UNAUTHORIZED,
+        return Err(error_response(
+            StatusCode::UNAUTHORIZED,
             "Invalid API key provided.",
-        ))
+        ));
     }
+
+    let mut req = req;
+    let identity_header_names = [
+        crate::internal_auth::IDENTITY_HEADER,
+        crate::internal_auth::SIGNATURE_HEADER,
+        crate::internal_auth::TIMESTAMP_HEADER,
+    ];
+    let has_identity_headers = identity_header_names
+        .iter()
+        .any(|name| req.headers().contains_key(*name));
+
+    if has_identity_headers {
+        let identity_secret = match state.identity_secret.as_deref() {
+            Some(secret) => secret,
+            None => {
+                return Err(error_response(
+                    StatusCode::UNAUTHORIZED,
+                    "Router identity assertions are not configured.",
+                ));
+            }
+        };
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|duration| duration.as_secs() as i64)
+            .unwrap_or_default();
+        let identity = crate::internal_auth::verify_identity(req.headers(), identity_secret, now);
+
+        match identity {
+            Some(identity) => {
+                req.extensions_mut().insert(identity);
+            }
+            None => {
+                return Err(error_response(
+                    StatusCode::UNAUTHORIZED,
+                    "Invalid router identity assertion.",
+                ));
+            }
+        }
+    }
+
+    Ok(next.run(req).await)
 }
