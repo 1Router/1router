@@ -1,7 +1,10 @@
 use serde_json::{Map, Value};
 
 use crate::chat::transformation::{AuthStrategy, ChatProviderConfig};
-use crate::types::{ChatCompletionRequest, ChatCompletionResponse, Usage};
+use crate::types::{
+    ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, ChunkChoice, ChunkFunction,
+    ChunkToolCall, Delta, Usage,
+};
 use crate::{ChatMessage, CoreError, CoreResult};
 
 /// Anthropic Messages API config.
@@ -80,13 +83,9 @@ impl ChatProviderConfig for AnthropicChatConfig {
             body.insert("tool_choice".into(), tc.clone());
         }
 
-        // Note: we deliberately do NOT pass stream=true to the upstream.
-        // The gateway handles streaming at its level: if the client requested
-        // stream=true but the provider doesn't support native SSE streaming
-        // (supports_streaming() returns false), the gateway collects the
-        // full non-streaming response and emits it as a single SSE chunk.
-        // Sending stream=true to Anthropic would make the upstream return
-        // SSE format, which the fake-stream path can't parse as JSON.
+        if request.stream {
+            body.insert("stream".into(), Value::Bool(true));
+        }
 
         Ok(Value::Object(body))
     }
@@ -104,23 +103,38 @@ impl ChatProviderConfig for AnthropicChatConfig {
             .unwrap_or("unknown")
             .to_string();
 
-        let content_text = response_json
+        let blocks = response_json
             .get("content")
-            .and_then(|c| c.as_array())
-            .map(|blocks| {
-                blocks
-                    .iter()
-                    .filter_map(|b| {
-                        if b.get("type").and_then(|t| t.as_str()) == Some("text") {
-                            b.get("text").and_then(|t| t.as_str()).map(String::from)
-                        } else {
-                            None
-                        }
-                    })
-                    .collect::<Vec<_>>()
-                    .join("")
-            })
+            .and_then(Value::as_array)
+            .cloned()
             .unwrap_or_default();
+        let content_text = blocks
+            .iter()
+            .filter_map(|block| {
+                (block.get("type").and_then(Value::as_str) == Some("text")).then(|| {
+                    block
+                        .get("text")
+                        .and_then(Value::as_str)
+                        .unwrap_or_default()
+                        .to_string()
+                })
+            })
+            .collect::<Vec<_>>()
+            .join("");
+        let tool_calls = blocks
+            .iter()
+            .filter_map(|block| {
+                if block.get("type").and_then(Value::as_str) != Some("tool_use") { return None; }
+                Some(serde_json::json!({
+                    "id": block.get("id").cloned().unwrap_or(Value::Null),
+                    "type": "function",
+                    "function": {
+                        "name": block.get("name").cloned().unwrap_or(Value::Null),
+                        "arguments": serde_json::to_string(block.get("input").unwrap_or(&Value::Object(Default::default()))).unwrap_or_default()
+                    }
+                }))
+            })
+            .collect::<Vec<_>>();
 
         let stop_reason = response_json
             .get("stop_reason")
@@ -162,7 +176,7 @@ impl ChatProviderConfig for AnthropicChatConfig {
                     role: "assistant".to_string(),
                     content: Value::String(content_text),
                     name: None,
-                    tool_calls: None,
+                    tool_calls: (!tool_calls.is_empty()).then_some(tool_calls),
                     tool_call_id: None,
                 },
                 finish_reason: stop_reason,
@@ -192,8 +206,114 @@ impl ChatProviderConfig for AnthropicChatConfig {
     }
 
     fn supports_streaming(&self) -> bool {
-        // Anthropic has a different SSE format than OpenAI. True streaming
-        // transform is a TODO — fake-stream fallback works for now.
-        false
+        true
+    }
+
+    fn transform_stream_event(
+        &self,
+        _model: &str,
+        event: Value,
+    ) -> CoreResult<Vec<ChatCompletionChunk>> {
+        let event_type = event
+            .get("type")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let id = event
+            .get("message")
+            .and_then(|m| m.get("id"))
+            .and_then(Value::as_str)
+            .or_else(|| event.get("id").and_then(Value::as_str))
+            .unwrap_or("chatcmpl-anthropic")
+            .to_string();
+        let created = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_secs())
+            .unwrap_or(0);
+        let mut chunk = ChatCompletionChunk {
+            id,
+            object: "chat.completion.chunk".to_string(),
+            created,
+            model: _model.to_string(),
+            choices: vec![ChunkChoice {
+                index: 0,
+                delta: Delta::default(),
+                finish_reason: None,
+            }],
+            usage: None,
+        };
+
+        match event_type {
+            "content_block_start" => {
+                let block = event.get("content_block").unwrap_or(&Value::Null);
+                if block.get("type").and_then(Value::as_str) != Some("tool_use") {
+                    return Ok(Vec::new());
+                }
+                let index = event.get("index").and_then(Value::as_u64).unwrap_or(0);
+                chunk.choices[0].delta.tool_calls = Some(vec![ChunkToolCall {
+                    index,
+                    id: block.get("id").and_then(Value::as_str).map(String::from),
+                    call_type: Some("function".to_string()),
+                    function: Some(ChunkFunction {
+                        name: block.get("name").and_then(Value::as_str).map(String::from),
+                        arguments: Some(String::new()),
+                    }),
+                }]);
+            }
+            "content_block_delta" => {
+                let delta = event.get("delta").unwrap_or(&Value::Null);
+                let kind = delta
+                    .get("type")
+                    .and_then(Value::as_str)
+                    .unwrap_or_default();
+                if kind == "text_delta" {
+                    chunk.choices[0].delta.content =
+                        delta.get("text").and_then(Value::as_str).map(String::from);
+                } else if kind == "input_json_delta" {
+                    let index = event.get("index").and_then(Value::as_u64).unwrap_or(0);
+                    chunk.choices[0].delta.tool_calls = Some(vec![ChunkToolCall {
+                        index,
+                        function: Some(ChunkFunction {
+                            arguments: delta
+                                .get("partial_json")
+                                .and_then(Value::as_str)
+                                .map(String::from),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }]);
+                } else {
+                    return Ok(Vec::new());
+                }
+            }
+            "message_delta" => {
+                let delta = event.get("delta").unwrap_or(&Value::Null);
+                chunk.choices[0].finish_reason = delta
+                    .get("stop_reason")
+                    .and_then(Value::as_str)
+                    .map(|reason| match reason {
+                        "end_turn" | "stop_sequence" => "stop".to_string(),
+                        "max_tokens" => "length".to_string(),
+                        "tool_use" => "tool_calls".to_string(),
+                        other => other.to_string(),
+                    });
+                if let Some(usage) = event.get("usage") {
+                    let input = usage
+                        .get("input_tokens")
+                        .and_then(Value::as_u64)
+                        .unwrap_or(0);
+                    let output = usage
+                        .get("output_tokens")
+                        .and_then(Value::as_u64)
+                        .unwrap_or(0);
+                    chunk.usage = Some(Usage {
+                        prompt_tokens: input,
+                        completion_tokens: output,
+                        total_tokens: input + output,
+                    });
+                }
+            }
+            _ => return Ok(Vec::new()),
+        }
+        Ok(vec![chunk])
     }
 }

@@ -1,7 +1,10 @@
 use serde_json::{Map, Value};
 
 use crate::chat::transformation::{AuthStrategy, ChatProviderConfig};
-use crate::types::{ChatCompletionRequest, ChatCompletionResponse, Usage};
+use crate::types::{
+    ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, ChunkChoice, ChunkFunction,
+    ChunkToolCall, Delta, Usage,
+};
 use crate::{ChatMessage, CoreError, CoreResult};
 
 /// Google AI Studio (Gemini) config.
@@ -80,8 +83,17 @@ impl ChatProviderConfig for GoogleChatConfig {
             body.insert("generationConfig".into(), Value::Object(gen_config));
         }
 
-        if request.stream {
-            // Google uses a query param for streaming, handled in complete_url
+        if let Some(tools) = optional_params.get("tools").and_then(Value::as_array) {
+            let declarations: Vec<Value> = tools
+                .iter()
+                .filter_map(|tool| tool.get("function").cloned())
+                .collect();
+            if !declarations.is_empty() {
+                body.insert(
+                    "tools".into(),
+                    serde_json::json!([{ "functionDeclarations": declarations }]),
+                );
+            }
         }
 
         Ok(Value::Object(body))
@@ -104,18 +116,30 @@ impl ChatProviderConfig for GoogleChatConfig {
             .first()
             .ok_or_else(|| CoreError::InvalidResponse("empty candidates array".into()))?;
 
-        let text = first
+        let parts = first
             .get("content")
-            .and_then(|c| c.get("parts"))
-            .and_then(|p| p.as_array())
-            .map(|parts| {
-                parts
-                    .iter()
-                    .filter_map(|p| p.get("text").and_then(|t| t.as_str()).map(String::from))
-                    .collect::<Vec<_>>()
-                    .join("")
-            })
+            .and_then(|content| content.get("parts"))
+            .and_then(Value::as_array)
+            .cloned()
             .unwrap_or_default();
+        let text = parts
+            .iter()
+            .filter_map(|part| part.get("text").and_then(Value::as_str).map(String::from))
+            .collect::<Vec<_>>()
+            .join("");
+        let tool_calls = parts
+            .iter()
+            .filter_map(|part| {
+                let call = part.get("functionCall")?;
+                Some(serde_json::json!({
+                    "type": "function",
+                    "function": {
+                        "name": call.get("name").cloned().unwrap_or(Value::Null),
+                        "arguments": serde_json::to_string(call.get("args").unwrap_or(&Value::Object(Default::default()))).unwrap_or_default()
+                    }
+                }))
+            })
+            .collect::<Vec<_>>();
 
         let finish_reason = first
             .get("finishReason")
@@ -167,7 +191,7 @@ impl ChatProviderConfig for GoogleChatConfig {
                     role: "assistant".to_string(),
                     content: Value::String(text),
                     name: None,
-                    tool_calls: None,
+                    tool_calls: (!tool_calls.is_empty()).then_some(tool_calls),
                     tool_call_id: None,
                 },
                 finish_reason,
@@ -197,9 +221,107 @@ impl ChatProviderConfig for GoogleChatConfig {
         "GOOGLE_API_KEY"
     }
 
+    fn streaming_url(&self, api_base_override: Option<&str>, model: &str) -> CoreResult<String> {
+        let base = api_base_override.unwrap_or(self.api_base());
+        Ok(format!(
+            "{base}/models/{model}:streamGenerateContent?alt=sse"
+        ))
+    }
+
     fn supports_streaming(&self) -> bool {
-        // Google uses :streamGenerateContent?alt=sse for true streaming,
-        // but we haven't implemented that yet — fake-stream fallback works.
-        false
+        true
+    }
+
+    fn transform_stream_event(
+        &self,
+        model: &str,
+        event: Value,
+    ) -> CoreResult<Vec<ChatCompletionChunk>> {
+        let candidate = event
+            .get("candidates")
+            .and_then(Value::as_array)
+            .and_then(|items| items.first())
+            .unwrap_or(&Value::Null);
+        let parts = candidate
+            .get("content")
+            .and_then(|content| content.get("parts"))
+            .and_then(Value::as_array)
+            .cloned()
+            .unwrap_or_default();
+        let mut delta = Delta::default();
+        let mut tool_calls = Vec::new();
+        for (index, part) in parts.iter().enumerate() {
+            if let Some(text) = part.get("text").and_then(Value::as_str) {
+                delta.content = Some(text.to_string());
+            }
+            if let Some(call) = part.get("functionCall") {
+                tool_calls.push(ChunkToolCall {
+                    index: index as u64,
+                    call_type: Some("function".to_string()),
+                    function: Some(ChunkFunction {
+                        name: call.get("name").and_then(Value::as_str).map(String::from),
+                        arguments: call
+                            .get("args")
+                            .map(|args| serde_json::to_string(args).unwrap_or_default()),
+                    }),
+                    ..Default::default()
+                });
+            }
+        }
+        if !tool_calls.is_empty() {
+            delta.tool_calls = Some(tool_calls);
+        }
+        let finish_reason = candidate
+            .get("finishReason")
+            .and_then(Value::as_str)
+            .map(|reason| match reason {
+                "STOP" => "stop".to_string(),
+                "MAX_TOKENS" => "length".to_string(),
+                "SAFETY" => "content_filter".to_string(),
+                other => other.to_lowercase(),
+            });
+        let usage = event.get("usageMetadata").map(|u| {
+            let prompt = u
+                .get("promptTokenCount")
+                .and_then(Value::as_u64)
+                .unwrap_or(0);
+            let completion = u
+                .get("candidatesTokenCount")
+                .and_then(Value::as_u64)
+                .unwrap_or(0);
+            Usage {
+                prompt_tokens: prompt,
+                completion_tokens: completion,
+                total_tokens: prompt + completion,
+            }
+        });
+        if delta.content.is_none()
+            && delta.tool_calls.is_none()
+            && finish_reason.is_none()
+            && usage.is_none()
+        {
+            return Ok(Vec::new());
+        }
+        Ok(vec![ChatCompletionChunk {
+            id: format!(
+                "chatcmpl-google-{}",
+                event
+                    .get("responseId")
+                    .and_then(Value::as_str)
+                    .unwrap_or("stream")
+            ),
+            object: "chat.completion.chunk".to_string(),
+            created: std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.as_secs())
+                .unwrap_or(0),
+            model: model.to_string(),
+            choices: vec![ChunkChoice {
+                index: 0,
+                delta,
+                finish_reason,
+            }],
+            usage,
+        }])
     }
 }

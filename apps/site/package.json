@@ -11,7 +11,8 @@
     "auth:generate": "bun x @better-auth/cli@1.4.21 generate --config ./src/lib/auth.ts --output ./src/lib/auth-schema.sql --yes",
     "auth:migrate": "bun x @better-auth/cli@1.4.21 migrate --config ./src/lib/auth.ts --yes",
     "auth:bootstrap": "bash ../../scripts/bootstrap-auth-db.sh",
-    "app:migrate": "bash ../../scripts/migrate-app-db.sh"
+    "app:migrate": "bash ../../scripts/migrate-app-db.sh",
+    "jobs": "bun run scripts/run-control-plane-jobs.ts"
   },
   "dependencies": {
     "@1router/models": "workspace:*",

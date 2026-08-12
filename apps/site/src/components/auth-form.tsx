@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { authClient, socialProviders } from "@/lib/auth-client"
+import { authClient, enterpriseSsoEnabled, socialProviders } from "@/lib/auth-client"
 
 type Mode = "sign-in" | "sign-up"
 
@@ -26,6 +26,15 @@ export function AuthForm({ mode }: { mode: Mode }) {
     })
     setPending(false)
     if (result.error) setError(result.error.message || `Unable to sign in with ${provider}.`)
+  }
+
+  async function signInWithEnterprise() {
+    setError("")
+    setNotice("")
+    setPending(true)
+    const result = await authClient.signIn.oauth2({ providerId: "enterprise-oidc", callbackURL: "/account", newUserCallbackURL: "/account" })
+    setPending(false)
+    if (result.error) setError(result.error.message || "Unable to sign in with enterprise SSO.")
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -63,8 +72,13 @@ export function AuthForm({ mode }: { mode: Mode }) {
         </p>
       </div>
 
-      {(socialProviders.google || socialProviders.github) && (
+      {(socialProviders.google || socialProviders.github || enterpriseSsoEnabled) && (
         <div className="grid gap-3 sm:grid-cols-2">
+          {enterpriseSsoEnabled && (
+            <button type="button" disabled={pending} onClick={signInWithEnterprise} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-primary/40 bg-primary/10 px-4 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2">
+              Continue with enterprise SSO
+            </button>
+          )}
           {socialProviders.google && (
             <button
               type="button"
@@ -88,7 +102,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         </div>
       )}
 
-      {(socialProviders.google || socialProviders.github) && (
+      {(socialProviders.google || socialProviders.github || enterpriseSsoEnabled) && (
         <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
           <span>or email link</span>

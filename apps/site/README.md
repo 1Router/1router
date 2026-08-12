@@ -23,7 +23,10 @@ both services, the proxy also signs a five-minute identity assertion. The
 Rust gateway verifies that assertion without accessing PostgreSQL. The usage
 ledger records authenticated proxy requests in PostgreSQL, and an optional
 per-user daily request quota can reserve capacity before forwarding a request;
-per-key/org quotas and spend controls are the next slice.
+per-key and organization policies, distributed PostgreSQL rate limits, token
+budgets, spend controls, and threshold alerts are now enforced by the control
+plane. Monthly usage statements are available on `/account`; Stripe-hosted
+subscription invoices remain available through the billing portal.
 
 ### Database requirement
 
@@ -51,7 +54,8 @@ DATABASE_URL=postgres://postgres:postgres@localhost:5433/onerouter \
 The script generates the schema from the current Better Auth config into a
 temporary file and applies it with `psql`; no generated SQL is committed because
 plugin changes can alter the schema. It then runs the checked-in, versioned
-operator migrations for `router_usage` and `router_quota_reservations`. For
+operator migrations for `router_usage`, scoped policies, rate limits, cost
+accounting, and alerts. For
 production, run `DATABASE_URL=... bun run --cwd apps/site app:migrate` as a
 one-shot migration job before starting the site. The direct Better Auth
 commands remain available as `auth:generate` and `auth:migrate`. The application
@@ -103,9 +107,16 @@ Copy `.env.example` and configure:
 | `ROUTER_API_KEY` | Yes | Private site-to-gateway master key |
 | `ROUTER_USER_API_KEY` | Client-side only | The Better Auth user key generated in `/account`; never put this in the site server environment |
 | `ROUTER_IDENTITY_SECRET` | Recommended | Shared HMAC secret for the signed user identity assertion |
+| `ROUTER_MAX_RETRIES` | Optional | Bounded gateway retries for retryable provider failures |
+| `ROUTER_DEPLOYMENTS_JSON` | Optional | Weighted logical-model deployment overrides consumed by the gateway |
+| `CONTROL_PLANE_JOB_INTERVAL_SECONDS` | Worker | Interval for the reconciliation worker; `0` runs one cycle and exits |
 | `CHAT_RATE_LIMIT_PER_MINUTE` | Optional | Temporary per-process proxy request limit |
-| `ROUTER_REQUESTS_PER_DAY` | Optional | Durable authenticated-user request quota; `0` means unlimited |
+| `ROUTER_REQUESTS_PER_DAY` | Optional | Legacy fallback quota for users without a policy; `0` means unlimited |
+| `ROUTER_DEFAULT_INPUT_MICRODOLLARS_PER_1K` / `ROUTER_DEFAULT_OUTPUT_MICRODOLLARS_PER_1K` | Optional | Fallback managed usage price when no model price row exists |
+| `ENTERPRISE_OIDC_ISSUER` / `ENTERPRISE_OIDC_CLIENT_ID` / `ENTERPRISE_OIDC_CLIENT_SECRET` | Enterprise | Custom OIDC discovery and credentials |
+| `NEXT_PUBLIC_ENTERPRISE_SSO_ENABLED` | Enterprise | Set `true` to show enterprise OIDC sign-in |
 | `X-1Router-Application` | Optional per request | Registered application slug used for explicit usage attribution |
+| `X-1Router-Organization` | Optional per request | Organization scope for a verified Better Auth member; applies organization policies and usage attribution |
 | `STRIPE_SECRET_KEY` | Managed only | Stripe server secret |
 | `STRIPE_WEBHOOK_SECRET` | Managed only | Stripe endpoint signing secret |
 | `STRIPE_PRICE_ID` | Managed only | Managed plan recurring Price ID |
@@ -122,7 +133,17 @@ No secret should use a `NEXT_PUBLIC_` prefix.
 3. For GitHub, register the matching `/api/auth/callback/github` callback URL
    and grant the app access to the user's email address.
 4. Password authentication is intentionally disabled; users sign in through a
-   magic link or an enabled social provider.
+   magic link, an enabled social provider, or configured enterprise OIDC.
+
+### Enterprise OIDC setup
+
+Set `ENTERPRISE_OIDC_ISSUER`, `ENTERPRISE_OIDC_CLIENT_ID`, and
+`ENTERPRISE_OIDC_CLIENT_SECRET` together. The provider must expose standard OIDC
+discovery, token, and user-info endpoints. Register the callback
+`/api/auth/oauth2/callback/enterprise-oidc` with the identity provider, then set
+`NEXT_PUBLIC_ENTERPRISE_SSO_ENABLED=true` to show the sign-in button. This first
+slice supports one deployment-wide OIDC issuer; SAML and organization-specific
+provider registration remain future work.
 
 ## Usage ledger
 
@@ -136,15 +157,40 @@ response.
 Authenticated users can query their own recent records at `GET /api/usage` or
 view them on `/account`. The endpoint is scoped by the Better Auth user ID and
 never accepts an arbitrary identity from the request. The ledger currently covers authenticated requests through the Next.js proxy;
-direct Rust gateway clients and anonymous demo traffic are intentionally not
+scoped policy enforcement reserves request, token, and estimated spend capacity
+before forwarding. PostgreSQL rate-limit buckets make the limits shared across
+site replicas. The operations panel also shows monthly usage statements and
+threshold alerts; configure model prices in `router_model_prices` after
+migration 003 for non-zero spend accounting. Add a `'*'` row to
+`router_model_prices` for a deployment default, or add model-specific rows.
+
+
+Direct Rust gateway clients and anonymous demo traffic are intentionally not
 recorded in the public aggregates. Model rankings read verified successful
 records from `/api/rankings`. Application showcase attribution is opt-in: owners
 register an application under `/account`, send its slug in the
 `X-1Router-Application` header, and only public applications appear at
 `/api/applications/public`.
 The bootstrap and application migration runner are idempotent. Add a new
-numbered SQL migration for future changes to `router_usage` or
-`router_quota_reservations`; do not edit an already-applied migration. Set
+numbered SQL migration for future changes to the usage, policy, audit, or alert
+schema; do not edit an already-applied migration. Run the control-plane
+maintenance worker after migration 004:
+
+```bash
+bun run --cwd apps/site jobs
+# or keep a worker alive:
+CONTROL_PLANE_JOB_INTERVAL_SECONDS=60 bun run --cwd apps/site jobs
+```
+
+The worker expires reservations, prunes rate-limit buckets and old audit data,
+rolls usage into daily aggregates, and reconciles current-month billing totals.
+The production Kubernetes manifest is `apps/site/k8s/02-control-plane-jobs.yaml`;
+apply it after migration 004 and provide the same `site-secrets.database-url`
+used by the site deployment.
+The production Kubernetes manifest is `apps/site/k8s/02-control-plane-jobs.yaml`;
+apply it after migration 004 and provide the same `site-secrets.database-url`
+used by the site deployment.
+ Set
 `ROUTER_REQUESTS_PER_DAY=0` for an
 unlimited self-hosted deployment, or a positive integer to enforce a UTC-day
 request quota for authenticated users. Active requests are reserved atomically
@@ -160,6 +206,12 @@ The managed service runs the same application with managed infrastructure,
 preconfigured provider routing, Better Auth accounts, and Stripe Billing. The
 managed deployment can set `AUTH_REQUIRED=true`, while a local self-hosted
 demo can leave it false during initial setup.
+
+The catalog includes NVIDIA-hosted chat models under the `nvidia/` namespace.
+For example, `nvidia/muse-glimmer-30b` is sent upstream as NVIDIA's exact
+`meta/muse-glimmer-30b` model ID. The catalog also contains NVIDIA embeddings,
+rerankers, audio/video services, and other NIMs for discovery; those remain
+unavailable through the current chat-only API until dedicated routes are added.
 
 ## Development
 

@@ -69,6 +69,13 @@ ENV NODE_ENV=production \
 COPY --from=builder --chown=bun:bun /repo/apps/site/.next ./apps/site/.next
 COPY --from=builder /repo/apps/site/public ./apps/site/public
 
+# The maintenance worker is run as a separate Kubernetes CronJob using the
+# same image. Keep only its small, database-only source surface in the runtime
+# image; the Next.js server remains the default container command.
+COPY --from=builder /repo/apps/site/src/lib/database.ts ./apps/site/src/lib/database.ts
+COPY --from=builder /repo/apps/site/src/lib/control-plane-jobs.ts ./apps/site/src/lib/control-plane-jobs.ts
+COPY --from=builder /repo/apps/site/scripts/run-control-plane-jobs.ts ./apps/site/scripts/run-control-plane-jobs.ts
+
 # Install only production deps from the hoisted root lockfile.
 COPY --from=builder /repo/package.json        ./package.json
 COPY --from=builder /repo/bun.lock            ./bun.lock

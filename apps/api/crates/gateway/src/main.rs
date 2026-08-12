@@ -2,6 +2,7 @@ mod auth;
 mod internal_auth;
 mod io;
 mod routes;
+mod routing;
 mod state;
 
 use std::net::SocketAddr;

@@ -1,6 +1,6 @@
 use serde_json::{Map, Value};
 
-use crate::types::{ChatCompletionRequest, ChatCompletionResponse};
+use crate::types::{ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse};
 use crate::CoreResult;
 
 /// How the upstream API expects credentials.
@@ -94,11 +94,26 @@ pub trait ChatProviderConfig: Sync {
         false
     }
 
+    /// Build the native streaming URL for the upstream request.
+    fn streaming_url(&self, api_base_override: Option<&str>, model: &str) -> CoreResult<String> {
+        self.complete_url(api_base_override, model)
+    }
+
     /// Whether the upstream supports SSE streaming natively.
     /// If false, the gateway will fake-stream by emitting the full response
     /// as a single chunk.
     fn supports_streaming(&self) -> bool {
         true
+    }
+
+    /// Translate one native streaming event into OpenAI-compatible chunks.
+    /// Providers that use a native SSE format override this method.
+    fn transform_stream_event(
+        &self,
+        _model: &str,
+        _event: Value,
+    ) -> CoreResult<Vec<ChatCompletionChunk>> {
+        Ok(Vec::new())
     }
 
     /// Extra headers the provider requires (e.g. anthropic-version).

@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth"
 import { nextCookies } from "better-auth/next-js"
 import { apiKey } from "@better-auth/api-key"
-import { bearer, magicLink, organization } from "better-auth/plugins"
+import { bearer, genericOAuth, magicLink, organization } from "better-auth/plugins"
 import { escapeHtml, sendAuthEmail } from "@/lib/auth-email"
 import { stripe } from "@better-auth/stripe"
 import Stripe from "stripe"
@@ -12,6 +12,13 @@ const isBuild = process.env.NEXT_PHASE === "phase-production-build"
 const betterAuthSecret = process.env.BETTER_AUTH_SECRET
 const betterAuthUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000"
 const hasMagicLinkEmail = Boolean(process.env.RESEND_API_KEY && process.env.RESEND_EMAIL_FROM)
+const enterpriseOidcValues = [process.env.ENTERPRISE_OIDC_ISSUER, process.env.ENTERPRISE_OIDC_CLIENT_ID, process.env.ENTERPRISE_OIDC_CLIENT_SECRET]
+const enterpriseOidcConfigured = enterpriseOidcValues.every(Boolean)
+
+function enterpriseOidcConfigurationError(): string {
+  if (enterpriseOidcValues.every((value) => !value) || enterpriseOidcConfigured) return ""
+  return "Enterprise OIDC requires ENTERPRISE_OIDC_ISSUER, ENTERPRISE_OIDC_CLIENT_ID, and ENTERPRISE_OIDC_CLIENT_SECRET"
+}
 
 // Next evaluates route modules while building. Keep that evaluation
 // side-effect-safe, but expose a runtime error below instead of ever using a
@@ -22,6 +29,7 @@ export const authConfigurationError = !isDevelopment && !isBuild
       !process.env.DATABASE_URL ? "DATABASE_URL must be configured" : null,
       !process.env.BETTER_AUTH_URL ? "BETTER_AUTH_URL must be configured" : null,
       stripeConfigurationError() || null,
+      enterpriseOidcConfigurationError() || null,
       !hasMagicLinkEmail
         ? "Magic-link auth requires RESEND_API_KEY and RESEND_EMAIL_FROM"
         : null,
@@ -85,6 +93,21 @@ function createStripePlugin() {
 
 const stripePlugin = createStripePlugin()
 
+const enterpriseOidcPlugin = enterpriseOidcConfigured
+  ? genericOAuth({
+      config: [{
+        providerId: "enterprise-oidc",
+        clientId: process.env.ENTERPRISE_OIDC_CLIENT_ID!,
+        clientSecret: process.env.ENTERPRISE_OIDC_CLIENT_SECRET!,
+        discoveryUrl: `${process.env.ENTERPRISE_OIDC_ISSUER!.replace(/\/$/, "")}/.well-known/openid-configuration`,
+        issuer: process.env.ENTERPRISE_OIDC_ISSUER,
+        scopes: ["openid", "profile", "email"],
+        pkce: true,
+        requireIssuerValidation: true,
+      }],
+    })
+  : null
+
 export const auth = betterAuth({
   database,
   baseURL: betterAuthUrl,
@@ -132,6 +155,7 @@ export const auth = betterAuth({
     }),
     bearer(),
     ...(stripePlugin ? [stripePlugin] : []),
+    ...(enterpriseOidcPlugin ? [enterpriseOidcPlugin] : []),
     // Better Auth documents nextCookies as the final plugin.
     nextCookies(),
   ],

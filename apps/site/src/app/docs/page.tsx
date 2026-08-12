@@ -167,7 +167,7 @@ export default function DocsPage() {
               <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">Available</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              The current alpha resolves an explicit <code className="break-all rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">{"provider/model-name"}</code> from the shared catalog and routes it to the configured provider. Automatic cost/latency routing is planned.
+              The gateway resolves an explicit <code className="break-all rounded bg-secondary px-1.5 py-0.5 text-xs font-mono">{"provider/model-name"}</code> from the shared catalog, then applies weighted deployments, passive health, cooldowns, and bounded retries. Automatic cost/latency optimization is planned.
             </p>
           </div>
           <div className="rounded-xl border border-border/60 bg-card p-5">
@@ -176,16 +176,16 @@ export default function DocsPage() {
               <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">Roadmap</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Provider pools, health-aware retries, and fallback models are planned. Today, each request is sent to the provider selected by its catalog model ID.
+              Configured deployment pools support weighted selection, passive health tracking, exponential cooldowns, and bounded retries. When a deployment fails with a retryable error, the gateway can select another healthy deployment in the same logical model pool.
             </p>
           </div>
           <div className="rounded-xl border border-border/60 bg-card p-5">
             <div className="mb-2 flex items-center gap-2">
               <h3 className="font-semibold">Rate Limiting &amp; Usage</h3>
-              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">Roadmap</span>
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">Available</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              The control plane records authenticated requests through the Next.js proxy in PostgreSQL, including model, status, duration, and token counts when providers return them. Verified rankings aggregate successful records from this ledger, while direct gateway clients and anonymous traffic remain excluded. Downstream applications can register an explicit slug and opt into the public showcase through the account page. Per-key limits, organization quotas, token budgets, spend controls, and distributed rate limiting remain roadmap work.
+              The control plane records authenticated requests through the Next.js proxy in PostgreSQL, including model, status, duration, and token counts when providers return them. Verified rankings aggregate successful records from this ledger, while direct gateway clients and anonymous traffic remain excluded. Downstream applications can register an explicit slug and opt into the public showcase through the account page. Per-key and organization policies, token budgets, spend controls, concurrency caps, and distributed PostgreSQL rate limiting are enforced before provider calls.
             </p>
           </div>
         </div>

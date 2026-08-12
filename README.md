@@ -39,7 +39,10 @@ The current release is a deployable alpha/MVP:
   site proxy. The site control plane records authenticated request usage in
   PostgreSQL, serves verified model rankings, supports explicit opt-in app
   attribution, and can enforce a durable per-user daily request quota; spend
-  controls and organization scope are the next slice.
+  controls and organization scope are now enforced through durable Postgres
+  policies, rate-limit buckets, token/spend reservations, and budget alerts;
+  managed accounts also expose monthly usage statements and enterprise OIDC
+  sign-in when configured.
 
 ## Authentication and billing architecture
 
@@ -171,13 +174,12 @@ bun run lint
 
 ## Roadmap
 
-1. Add per-key/org scope, distributed rate limiting, token budgets, and spend
-   controls around the authenticated usage ledger; extend application ownership
-   from users to organizations and API keys.
+1. Extend the new durable per-user/API-key/organization controls with policy
+   inheritance, richer invoice exports, and organization-owned key management.
 2. Add provider health checks, retries, weighted routing, and failover.
 3. Add true Anthropic/Google SSE translation, tool calling, and embeddings.
-4. Add managed-service operational controls, invoices/usage views, alerts, and
-   enterprise SSO.
+4. Add managed-service invoice synchronization, delivery channels for alerts,
+   and SAML in addition to the current enterprise OIDC flow.
 
 ## License
 

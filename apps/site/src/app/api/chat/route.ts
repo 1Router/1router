@@ -1,8 +1,9 @@
 import { createHmac } from "node:crypto"
 import { NextRequest } from "next/server"
 import { authConfigurationError } from "@/lib/auth"
-import { authenticatedIdentity } from "@/lib/request-auth"
-import { QuotaExceededError, recordUsage, releaseRequest, reserveRequest } from "@/lib/usage"
+import { authenticatedPrincipal } from "@/lib/request-auth"
+import { QuotaExceededError, estimateRequestBudget, recordUsage, releaseRequest, reservePublicRequest, reserveRequest, usageCostMicrodollars } from "@/lib/usage"
+import { recordAuditEvent } from "@/lib/audit"
 import { resolveApplicationId } from "@/lib/applications"
 
 const identityHeader = "X-1Router-Identity"
@@ -27,38 +28,12 @@ export const runtime = "nodejs"
 function upstreamRouterUrl(): string {
   return process.env.ROUTER_API_URL || "https://api.1router.com"
 }
-const requestWindowMs = 60_000
-const defaultRequestsPerMinute = 10
-
-// This in-memory guard remains a temporary fallback. Managed deployments
-// should replace it with durable, shared rate limiting in the control plane.
-const requestCounts = new Map<string, { startedAt: number; count: number }>()
-
 function clientAddress(request: NextRequest): string {
   return (
     request.headers.get("x-real-ip") ||
     request.headers.get("x-forwarded-for")?.split(",", 1)[0]?.trim() ||
     "anonymous"
   )
-}
-
-function isRateLimited(address: string): boolean {
-  const limit = Number.parseInt(
-    process.env.CHAT_RATE_LIMIT_PER_MINUTE || String(defaultRequestsPerMinute),
-    10,
-  )
-  const now = Date.now()
-  const current = requestCounts.get(address)
-  const effectiveLimit = Number.isFinite(limit) && limit > 0 ? limit : defaultRequestsPerMinute
-
-  if (!current || now - current.startedAt >= requestWindowMs) {
-    requestCounts.set(address, { startedAt: now, count: 1 })
-    return false
-  }
-
-  if (current.count >= effectiveLimit) return true
-  current.count += 1
-  return false
 }
 
 function identityAssertionHeaders(identity: string | null, secret: string | undefined): Record<string, string> {
@@ -83,7 +58,7 @@ function usageFromSseLine(line: string): { promptTokens: number; completionToken
 
 function recordStreamUsage(
   stream: ReadableStream<Uint8Array>,
-  identity: string,
+  principal: Awaited<ReturnType<typeof authenticatedPrincipal>>,
   model: string,
   status: number,
   requestId: string | null,
@@ -115,20 +90,29 @@ function recordStreamUsage(
     const parsed = usageFromSseLine(buffer.trim())
     if (parsed) usage = parsed
     try {
+      if (!principal) {
+        await releaseRequest(reservationId)
+        return
+      }
       await recordUsage({
-        identity,
+        identity: principal.identity,
+        userId: principal.userId,
+        apiKeyId: principal.keyId,
+        organizationId: principal.organizationId,
         model,
         status,
         requestId,
         durationMs: Date.now() - startedAt,
         ...usage,
+        costMicrodollars: await usageCostMicrodollars(model, usage.promptTokens, usage.completionTokens),
         streamed: true,
         applicationId,
         reservationId,
       })
     } catch (error) {
-      console.error("usage recording failed", error)
-      await releaseRequest(reservationId).catch(() => undefined)
+      // Keep the reservation until its short expiry when accounting fails;
+      // releasing it would let a caller bypass hard budgets during an outage.
+      console.error("usage recording failed; reservation retained", error)
     }
   }
 
@@ -199,15 +183,16 @@ export async function chatPost(request: NextRequest, requireAuthentication = fal
     )
   }
 
-  let identity: string | null = null
+  let principal: Awaited<ReturnType<typeof authenticatedPrincipal>> = null
   try {
-    identity = await authenticatedIdentity(request)
+    principal = await authenticatedPrincipal(request)
   } catch (error) {
     console.error("chat proxy authentication failed", error)
   }
+  const identity = principal?.identity || null
 
   const authRequired = requireAuthentication || process.env.AUTH_REQUIRED === "true"
-  if (authRequired && identity && !routerIdentitySecret) {
+  if (authRequired && principal && !routerIdentitySecret) {
     return Response.json(
       {
         error: {
@@ -231,25 +216,46 @@ export async function chatPost(request: NextRequest, requireAuthentication = fal
     )
   }
 
-  if (isRateLimited(identity || `ip:${clientAddress(request)}`)) {
-    return Response.json(
-      {
-        error: {
-          message: "Chat rate limit reached. Try again shortly.",
-          type: "rate_limit_error",
-        },
-      },
-      { status: 429, headers: { "Retry-After": "60" } },
-    )
+  if (!identity) {
+    const configuredLimit = Number.parseInt(process.env.CHAT_RATE_LIMIT_PER_MINUTE || "10", 10)
+    try {
+      const allowed = await reservePublicRequest(`ip:${clientAddress(request)}`, configuredLimit)
+      if (!allowed) {
+        return Response.json(
+          { error: { message: "Chat rate limit reached. Try again shortly.", type: "rate_limit_error" } },
+          { status: 429, headers: { "Retry-After": "60" } },
+        )
+      }
+    } catch (error) {
+      console.error("public rate-limit reservation failed", error)
+      return Response.json(
+        { error: { message: "Rate-limit service is unavailable.", type: "configuration_error" } },
+        { status: 503 },
+      )
+    }
   }
 
+  const requestBody = await request.clone().json().catch(() => null)
+  const model = String(requestBody?.model || "unknown")
+  const rawMessages = Array.isArray(requestBody?.messages) ? requestBody.messages : []
+  const estimatedInputTokens = Math.max(1, Math.ceil(JSON.stringify(rawMessages).length / 4))
+  const requestedOutputTokens = Number(requestBody?.max_tokens || requestBody?.max_completion_tokens || 1024)
+  void recordAuditEvent({
+    eventType: "chat.request.accepted",
+    identity,
+    userId: principal?.userId,
+    apiKeyId: principal?.keyId,
+    organizationId: principal?.organizationId,
+    model,
+    metadata: { authenticated: Boolean(identity), streamed: Boolean(requestBody?.stream) },
+  })
   let reservationId: string | null = null
   let applicationId: string | null = null
-  if (identity) {
+  if (principal) {
     const applicationSlug = request.headers.get("x-1router-application")?.trim()
     if (applicationSlug) {
       try {
-        applicationId = await resolveApplicationId(identity, applicationSlug)
+        applicationId = await resolveApplicationId(principal.identity, applicationSlug)
       } catch (error) {
         console.error("application attribution lookup failed", error)
         return Response.json(
@@ -265,13 +271,14 @@ export async function chatPost(request: NextRequest, requireAuthentication = fal
       }
     }
     try {
-      reservationId = await reserveRequest(identity)
+      const budget = await estimateRequestBudget(model, estimatedInputTokens, Number.isSafeInteger(requestedOutputTokens) && requestedOutputTokens > 0 ? requestedOutputTokens : 1024)
+      reservationId = await reserveRequest(principal, budget.tokens, budget.costMicrodollars)
     } catch (error) {
       if (error instanceof QuotaExceededError) {
         return Response.json(
           {
             error: {
-              message: "Daily request quota reached. Try again tomorrow.",
+              message: `${error.kind === "rate" ? "Rate" : error.kind === "tokens" ? "Monthly token" : error.kind === "spend" ? "Monthly spend" : error.kind === "concurrency" ? "Concurrent request" : "Daily request"} limit reached.`,
               type: "quota_error",
               limit: error.limit,
               used: error.used,
@@ -290,8 +297,6 @@ export async function chatPost(request: NextRequest, requireAuthentication = fal
   }
 
   const startedAt = Date.now()
-  const requestBody = await request.clone().json().catch(() => null)
-  const model = String(requestBody?.model || "unknown")
   const upstreamBody = requestBody
     ? JSON.stringify(
         requestBody.stream
@@ -319,6 +324,17 @@ export async function chatPost(request: NextRequest, requireAuthentication = fal
     })
 
     const requestId = upstream.headers.get("x-request-id")
+    void recordAuditEvent({
+      eventType: "chat.request.completed",
+      identity,
+      userId: principal?.userId,
+      apiKeyId: principal?.keyId,
+      organizationId: principal?.organizationId,
+      model,
+      requestId,
+      status: upstream.status,
+      metadata: { streamed: (upstream.headers.get("content-type") || "").includes("text/event-stream") },
+    })
     const responseHeaders = new Headers()
     for (const name of ["cache-control", "content-type", "connection", "retry-after", "x-request-id"]) {
       const value = upstream.headers.get(name)
@@ -328,7 +344,7 @@ export async function chatPost(request: NextRequest, requireAuthentication = fal
     const streamed = (upstream.headers.get("content-type") || "").includes("text/event-stream")
     if (streamed && identity && upstream.body) {
       return new Response(
-        recordStreamUsage(upstream.body, identity, model, upstream.status, requestId, startedAt, reservationId, applicationId),
+        recordStreamUsage(upstream.body, principal, model, upstream.status, requestId, startedAt, reservationId, applicationId),
         {
           status: upstream.status,
           statusText: upstream.statusText,
@@ -348,7 +364,10 @@ export async function chatPost(request: NextRequest, requireAuthentication = fal
         try {
           await recordUsage({
             reservationId,
-            identity,
+            identity: principal!.identity,
+            userId: principal!.userId,
+            apiKeyId: principal!.keyId,
+            organizationId: principal!.organizationId,
             model,
             status: upstream.status,
             requestId,
@@ -356,12 +375,14 @@ export async function chatPost(request: NextRequest, requireAuthentication = fal
             promptTokens: Number(usage?.prompt_tokens || 0),
             completionTokens: Number(usage?.completion_tokens || 0),
             totalTokens: Number(usage?.total_tokens || 0),
+            costMicrodollars: await usageCostMicrodollars(model, Number(usage?.prompt_tokens || 0), Number(usage?.completion_tokens || 0)),
             streamed: false,
             applicationId,
           })
         } catch (error) {
-          console.error("usage recording failed", error)
-          await releaseRequest(reservationId).catch(() => undefined)
+          // The response is already available, so retain the reservation until
+          // expiry rather than failing open on a ledger outage.
+          console.error("usage recording failed; reservation retained", error)
         }
       }
     }

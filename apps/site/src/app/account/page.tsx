@@ -2,7 +2,8 @@ import type { Metadata } from "next"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { AccountActions } from "@/components/account-actions"
-import { getQuotaStatus, listUsage } from "@/lib/usage"
+import { getBillingSummary, getQuotaStatus, listUsage } from "@/lib/usage"
+import { listAlerts } from "@/lib/operations"
 import { auth, authConfigurationError } from "@/lib/auth"
 
 export const metadata: Metadata = {
@@ -28,9 +29,12 @@ export default async function AccountPage() {
 
   let usage: Awaited<ReturnType<typeof listUsage>> = []
   let quota: Awaited<ReturnType<typeof getQuotaStatus>> = { limit: 0, used: 0, reserved: 0, remaining: null }
+  let billing: Awaited<ReturnType<typeof getBillingSummary>> = { periodStart: new Date().toISOString(), periodEnd: new Date().toISOString(), requests: 0, totalTokens: 0, spendCents: 0, byModel: [] }
+  let alerts: Awaited<ReturnType<typeof listAlerts>> = []
   try {
     const identity = `user:${session.user.id}`
-    ;[usage, quota] = await Promise.all([listUsage(identity, 20), getQuotaStatus(identity)])
+    const principal = { userId: session.user.id, identity, keyId: null, organizationId: null, scopes: [{ type: "user" as const, id: session.user.id }] }
+    ;[usage, quota, billing, alerts] = await Promise.all([listUsage(identity, 20), getQuotaStatus(principal), getBillingSummary(principal), listAlerts(principal)])
   } catch (error) {
     console.error("account usage query failed", error)
   }
@@ -44,6 +48,9 @@ export default async function AccountPage() {
           <p className="mt-2 text-muted-foreground">{session.user.email}</p>
         </div>
         <AccountActions
+          userId={session.user.id}
+          billing={billing}
+          alerts={alerts}
           billingEnabled={Boolean(
             process.env.STRIPE_SECRET_KEY &&
               process.env.STRIPE_WEBHOOK_SECRET &&

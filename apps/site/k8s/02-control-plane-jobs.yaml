@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: site-control-plane-jobs
+  namespace: 1router
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app: site-control-plane-jobs
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: jobs
+              image: ghcr.io/1router/site:main
+              imagePullPolicy: Always
+              workingDir: /repo/apps/site
+              command: ["bun", "run", "scripts/run-control-plane-jobs.ts"]
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: site-secrets
+                      key: database-url
+                - name: CONTROL_PLANE_JOB_INTERVAL_SECONDS
+                  value: "0"
+              resources:
+                requests:
+                  cpu: "25m"
+                  memory: "64Mi"
+                limits:
+                  cpu: "250m"
+                  memory: "256Mi"

@@ -22,6 +22,10 @@ spec:
         env:
         - name: RUST_LOG
           value: "info"
+        - name: ROUTER_MAX_RETRIES
+          value: "2"
+        - name: ROUTER_DEPLOYMENTS_JSON
+          value: "{}"
         - name: BIND_ADDR
           value: "0.0.0.0:3001"
         - name: CORS_ALLOWED_ORIGINS
@@ -197,6 +201,7 @@ spec:
 # - Add podAntiAffinity so the two replicas land on different nodes.
 # - Add a PodDisruptionBudget to ensure availability during node drains.
 # - Configure a HorizontalPodAutoscaler on CPU + memory.
+# - Apply apps/site/k8s/02-control-plane-jobs.yaml after migration 004.
 # - Create the api-secrets Secret out-of-band (not in git!):
 #     kubectl create secret generic api-secrets \
 #       --namespace=1router \

@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { authClient } from "@/lib/auth-client"
+import { OperationsPanel } from "@/components/operations-panel"
+import type { AlertRecord } from "@/lib/operations"
+import type { BillingSummary } from "@/lib/usage"
 
 type Application = {
   id: string
@@ -22,7 +25,7 @@ type ApplicationForm = {
 
 const emptyApplication: ApplicationForm = { slug: "", name: "", description: "", websiteUrl: "", public: false }
 
-export function AccountActions({ billingEnabled }: { billingEnabled: boolean }) {
+export function AccountActions({ userId, billing, alerts, billingEnabled }: { userId: string; billing: BillingSummary; alerts: AlertRecord[]; billingEnabled: boolean }) {
   const [keyName, setKeyName] = useState("default")
   const [createdKey, setCreatedKey] = useState("")
   const [message, setMessage] = useState("")
@@ -122,6 +125,8 @@ export function AccountActions({ billingEnabled }: { billingEnabled: boolean }) 
         <p className="mt-2 text-sm text-muted-foreground">{billingEnabled ? "Manage the optional Stripe subscription for the 1Router managed service." : "Stripe billing is disabled on this self-hosted deployment. You own the infrastructure and provider relationships directly."}</p>
         {billingEnabled && <div className="mt-5 flex flex-col gap-3"><button type="button" onClick={startSubscription} disabled={pending} className="min-h-[44px] rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60">Start managed plan</button><button type="button" onClick={openPortal} disabled={pending} className="min-h-[44px] rounded-lg border border-border px-4 text-sm font-semibold transition hover:bg-secondary disabled:opacity-60">Open billing portal</button></div>}
       </section>
+
+      <OperationsPanel userId={userId} billing={billing} alerts={alerts} />
 
       <section className="rounded-2xl border border-border/60 bg-card p-6 md:col-span-2">
         <h2 className="text-lg font-semibold">Applications and attribution</h2>

@@ -11,13 +11,18 @@ use axum::Router;
 
 /// Build the full application router with all routes.
 pub fn app(state: AppState) -> Router {
-    // Public routes (no auth)
+    // Public routes (no auth). Keep liveness and the model catalog available
+    // to probes and discovery clients without exposing operational state.
     let public = Router::new()
         .route("/healthz", get(health::healthz))
         .route("/v1/models", get(models::list_models));
 
-    // Authenticated routes (require Bearer token)
+    // Operational and chat routes require the private gateway key. Provider
+    // health includes deployment identifiers and metrics expose traffic volume,
+    // so neither should be anonymously enumerable in production.
     let authed = Router::new()
+        .route("/healthz/providers", get(health::provider_health))
+        .route("/metrics", get(health::metrics))
         .route("/v1/chat/completions", post(chat::chat_completions))
         .layer(axum::middleware::from_fn_with_state(
             state.clone(),

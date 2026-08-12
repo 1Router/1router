@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server"
 import { authConfigurationError } from "@/lib/auth"
-import { authenticatedIdentity } from "@/lib/request-auth"
+import { authenticatedPrincipal } from "@/lib/request-auth"
 import { getQuotaStatus, listUsage } from "@/lib/usage"
 
 export const runtime = "nodejs"
@@ -19,14 +19,14 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  let identity: string | null = null
+  let principal
   try {
-    identity = await authenticatedIdentity(request)
+    principal = await authenticatedPrincipal(request)
   } catch (error) {
     console.error("usage authentication failed", error)
   }
 
-  if (!identity) {
+  if (!principal) {
     return Response.json(
       { error: { message: "Authentication is required.", type: "authentication_error" } },
       { status: 401 },
@@ -36,8 +36,8 @@ export async function GET(request: NextRequest) {
   const rawLimit = Number.parseInt(request.nextUrl.searchParams.get("limit") || "100", 10)
   try {
     const [usage, quota] = await Promise.all([
-      listUsage(identity, Number.isFinite(rawLimit) ? rawLimit : 100),
-      getQuotaStatus(identity),
+      listUsage(principal.identity, Number.isFinite(rawLimit) ? rawLimit : 100),
+      getQuotaStatus(principal),
     ])
     return Response.json({ data: usage, quota })
   } catch (error) {

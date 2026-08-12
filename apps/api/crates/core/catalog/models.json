@@ -346,6 +346,131 @@
       "license": "gemma"
     },
     {
+      "id": "nvidia/muse-glimmer-30b",
+      "name": "Muse Glimmer 30B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "upstreamModel": "meta/muse-glimmer-30b",
+      "description": "Multimodal reasoning model for text and image inputs with tool-calling support, served through NVIDIA's OpenAI-compatible endpoint.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "vision",
+        "reasoning",
+        "function-calling"
+      ],
+      "modality": [
+        "text→text",
+        "image+text→text"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2026-08-10",
+      "freeEndpoint": true,
+      "tags": [
+        "multimodal",
+        "reasoning",
+        "tool-calling"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "name": "Nemotron 3.5 Lightning 30B A3B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Fast 30B A3B MoE model optimized for specialized agentic tasks.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "code",
+        "reasoning",
+        "function-calling",
+        "agentic"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Nemotron",
+      "releaseDate": "2026-08-11",
+      "freeEndpoint": true,
+      "tags": [
+        "MoE",
+        "agentic",
+        "reasoning",
+        "tool-calling"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/riva-translate-4b-instruct-v2",
+      "name": "Riva Translate 4B Instruct v2",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Multilingual instruction-tuned translation model served through NVIDIA NIM.",
+      "contextLength": 8192,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "translation",
+        "multilingual"
+      ],
+      "modality": [
+        "text→text"
+      ],
+      "series": "Riva",
+      "releaseDate": "2026-07-27",
+      "freeEndpoint": true,
+      "tags": [
+        "translation",
+        "multilingual"
+      ],
+      "license": "open"
+    },
+    {
+      "id": "nvidia/ising-calibration-1.5-31b",
+      "name": "Ising Calibration 1.5 31B",
+      "provider": "NVIDIA",
+      "providerSlug": "nvidia",
+      "description": "Multimodal vision-language model for quantum-computing calibration experiment analysis.",
+      "contextLength": 131072,
+      "pricing": {
+        "input": 0,
+        "output": 0
+      },
+      "capabilities": [
+        "text-generation",
+        "chat",
+        "vision",
+        "reasoning"
+      ],
+      "modality": [
+        "image+text→text"
+      ],
+      "series": "NVIDIA",
+      "releaseDate": "2026-07-23",
+      "freeEndpoint": true,
+      "tags": [
+        "quantum-computing",
+        "calibration",
+        "vision"
+      ],
+      "license": "open"
+    },
+    {
       "id": "nvidia/nemotron-3-ultra-550b-a55b",
       "name": "Nemotron 3 Ultra 550B",
       "provider": "NVIDIA",

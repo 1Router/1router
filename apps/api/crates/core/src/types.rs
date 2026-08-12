@@ -130,4 +130,25 @@ pub struct Delta {
     pub role: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tool_calls: Option<Vec<ChunkToolCall>>,
+}
+
+#[derive(Debug, Clone, Serialize, Default)]
+pub struct ChunkToolCall {
+    pub index: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
+    pub call_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub function: Option<ChunkFunction>,
+}
+
+#[derive(Debug, Clone, Serialize, Default)]
+pub struct ChunkFunction {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub arguments: Option<String>,
 }

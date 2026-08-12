@@ -238,9 +238,8 @@ impl ChatProviderConfig for OpenAiChatConfig {
             let env_var = self.api_base_env.ok_or_else(|| {
                 crate::CoreError::Config("provider API base URL is not configured".to_string())
             })?;
-            std::env::var(env_var).map_err(|_| {
-                crate::CoreError::Config(format!("{env_var} is required"))
-            })?
+            std::env::var(env_var)
+                .map_err(|_| crate::CoreError::Config(format!("{env_var} is required")))?
         };
 
         if self.api_base.is_empty() && self.api_base_env == Some("AZURE_OPENAI_ENDPOINT") {

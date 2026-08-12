@@ -16,6 +16,8 @@ export interface Model {
   name: string
   provider: string
   providerSlug: string
+  /** Exact provider-side model ID when the public router namespace differs. */
+  upstreamModel?: string
   description: string
   contextLength: number
   pricing: ModelPricing
