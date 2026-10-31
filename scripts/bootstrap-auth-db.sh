@@ -42,12 +42,16 @@ cleanup() {
 }
 trap cleanup EXIT
 
-bun x @better-auth/cli@1.4.21 generate \
-  --config ./apps/site/src/lib/auth.ts \
-  --output "$SCHEMA_FILE" \
-  --yes
+# Run from the site workspace so the config loader can resolve its @/* alias.
+(
+  cd "$ROOT_DIR/apps/site"
+  bun x @better-auth/cli@1.4.21 generate \
+    --config ./src/lib/auth.ts \
+    --output "$SCHEMA_FILE" \
+    --yes
+)
 
-printf 'Applying Better Auth schema to %s\n' "${DATABASE_URL%%\?*}"
+printf 'Applying Better Auth schema to the configured database.\n'
 run_psql --set ON_ERROR_STOP=1 < "$SCHEMA_FILE"
 
 # Application tables are maintained by explicit, versioned migrations so
