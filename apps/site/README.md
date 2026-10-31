@@ -94,8 +94,9 @@ Copy `.env.example` and configure:
 | `BETTER_AUTH_SECRET` | Yes for auth | 32+ character high-entropy secret |
 | `BETTER_AUTH_URL` | Yes for auth | Canonical site URL |
 | `TRUSTED_ORIGINS` | Recommended | Comma-separated trusted origins |
-| `RESEND_API_KEY` | Magic links | Server-side Resend API key |
-| `RESEND_EMAIL_FROM` | Magic links | Verified sender, e.g. `1Router <auth@example.com>` |
+| `CLOUDFLARE_ACCOUNT_ID` | Magic links | Cloudflare account with Workers Paid and Email Sending |
+| `CLOUDFLARE_EMAIL_API_TOKEN` | Magic links | Server-side token with Email Sending permission |
+| `AUTH_EMAIL_FROM` | Magic links | Plain sender address on an onboarded sending domain, e.g. `login@auth.example.com` |
 | `GOOGLE_CLIENT_ID` | Optional | Google OAuth client ID |
 | `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth client secret |
 | `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED` | Optional | Set `true` to show Google sign-in |
@@ -125,15 +126,27 @@ No secret should use a `NEXT_PUBLIC_` prefix.
 
 ### Passwordless auth setup
 
-1. Create a Resend account, verify the sending domain/address, and set
-   `RESEND_API_KEY` and `RESEND_EMAIL_FROM`. Magic links expire after 10 minutes
-   and are single-use.
+1. Onboard a sending domain in Cloudflare Email Sending (Workers Paid required),
+   verify its DNS status, and set `CLOUDFLARE_ACCOUNT_ID`,
+   `CLOUDFLARE_EMAIL_API_TOKEN`, and `AUTH_EMAIL_FROM`. Use a scoped token with
+   Email Sending permission. For a sending domain `auth.example.com`, the
+   sender can be `login@auth.example.com`; the website and magic-link URL can
+   remain `https://example.com`. The sending subdomain needs Cloudflare's
+   email authentication records; a website A/CNAME record is not required.
+   Magic links expire after 10 minutes and are single-use.
 2. For Google, register `http://localhost:3000/api/auth/callback/google` locally
    and `https://your-domain.example/api/auth/callback/google` in production.
 3. For GitHub, register the matching `/api/auth/callback/github` callback URL
    and grant the app access to the user's email address.
 4. Password authentication is intentionally disabled; users sign in through a
    magic link, an enabled social provider, or configured enterprise OIDC.
+
+The app calls Cloudflare's REST API directly from the server. Store the email
+token in runtime secrets, never in public build variables. It accepts a send
+only when Cloudflare reports the intended recipient as delivered or queued;
+bounced, suppressed, malformed, and failed responses are errors. Sends time
+out after 15 seconds and are not retried automatically, to avoid duplicate
+login emails after ambiguous delivery failures.
 
 ### Enterprise OIDC setup
 

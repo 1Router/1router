@@ -41,11 +41,12 @@ COPY public ./apps/site/public
 # Source tree.
 COPY apps/site     ./apps/site
 COPY packages/models ./packages/models
+COPY tests ./tests
 
 # Build the Next.js site.
 WORKDIR /repo/apps/site
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN bun run build
+RUN bun run test && bun run build
 
 # ─── Stage 2: production runtime ────────────────────────────
 # Same pin as the builder — keeps the runtime on the same bun minor as the

@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth"
 import { nextCookies } from "better-auth/next-js"
 import { apiKey } from "@better-auth/api-key"
 import { bearer, genericOAuth, magicLink, organization } from "better-auth/plugins"
-import { escapeHtml, sendAuthEmail } from "@/lib/auth-email"
+import { authEmailConfigurationError, escapeHtml, sendAuthEmail } from "@/lib/auth-email"
 import { stripe } from "@better-auth/stripe"
 import Stripe from "stripe"
 import { database } from "@/lib/database"
@@ -11,7 +11,7 @@ const isDevelopment = process.env.NODE_ENV === "development"
 const isBuild = process.env.NEXT_PHASE === "phase-production-build"
 const betterAuthSecret = process.env.BETTER_AUTH_SECRET
 const betterAuthUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000"
-const hasMagicLinkEmail = Boolean(process.env.RESEND_API_KEY && process.env.RESEND_EMAIL_FROM)
+const magicLinkEmailError = authEmailConfigurationError()
 const enterpriseOidcValues = [process.env.ENTERPRISE_OIDC_ISSUER, process.env.ENTERPRISE_OIDC_CLIENT_ID, process.env.ENTERPRISE_OIDC_CLIENT_SECRET]
 const enterpriseOidcConfigured = enterpriseOidcValues.every(Boolean)
 
@@ -30,9 +30,7 @@ export const authConfigurationError = !isDevelopment && !isBuild
       !process.env.BETTER_AUTH_URL ? "BETTER_AUTH_URL must be configured" : null,
       stripeConfigurationError() || null,
       enterpriseOidcConfigurationError() || null,
-      !hasMagicLinkEmail
-        ? "Magic-link auth requires RESEND_API_KEY and RESEND_EMAIL_FROM"
-        : null,
+      magicLinkEmailError || null,
     ].filter((message): message is string => Boolean(message)).join("; ")
   : ""
 
