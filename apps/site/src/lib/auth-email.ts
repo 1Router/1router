@@ -5,6 +5,30 @@ type AuthEmail = {
   html: string
 }
 
+type EmailConfig = { token: string; from: string; accountId: string }
+
+function emailConfiguration(env: Record<string, string | undefined>): EmailConfig | { error: string } {
+  if (!env.CLOUDFLARE_EMAIL_API_TOKEN || !env.CLOUDFLARE_ACCOUNT_ID || !env.AUTH_EMAIL_FROM) {
+    return { error: "Cloudflare magic-link email requires CLOUDFLARE_EMAIL_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, and AUTH_EMAIL_FROM" }
+  }
+  if (!/^[a-f0-9]{32}$/i.test(env.CLOUDFLARE_ACCOUNT_ID)) {
+    return { error: "CLOUDFLARE_ACCOUNT_ID must be a 32-character account identifier" }
+  }
+  if (!/^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(env.AUTH_EMAIL_FROM)) {
+    return { error: "AUTH_EMAIL_FROM must be a plain email address on a verified sending domain" }
+  }
+  return {
+    token: env.CLOUDFLARE_EMAIL_API_TOKEN,
+    accountId: env.CLOUDFLARE_ACCOUNT_ID,
+    from: env.AUTH_EMAIL_FROM,
+  }
+}
+
+export function authEmailConfigurationError(env: Record<string, string | undefined> = process.env): string {
+  const config = emailConfiguration(env)
+  return "error" in config ? config.error : ""
+}
+
 export function escapeHtml(value: string): string {
   return value
     .replaceAll("&", "&amp;")
@@ -16,28 +40,36 @@ export function escapeHtml(value: string): string {
 
 /**
  * Send an authentication email without exposing provider credentials to the
- * browser. Resend is used through its HTTP API so self-hosted deployments do
- * not need an additional runtime dependency or SMTP server.
+ * browser. Cloudflare's HTTP API works directly from Coolify and self-hosted
+ * deployments without a Worker, extra runtime dependency, or SMTP server.
  */
 export async function sendAuthEmail({ to, subject, text, html }: AuthEmail): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY
-  const from = process.env.RESEND_EMAIL_FROM
-
-  if (!apiKey || !from) {
-    throw new Error("Magic-link email is not configured: set RESEND_API_KEY and RESEND_EMAIL_FROM")
-  }
-
-  const response = await fetch("https://api.resend.com/emails", {
+  const config = emailConfiguration(process.env)
+  if ("error" in config) throw new Error(config.error)
+  const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${config.accountId}/email/sending/send`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${config.token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from, to: [to], subject, text, html }),
+    body: JSON.stringify({ from: { address: config.from, name: "1Router" }, to: [to], subject, text, html }),
+    signal: AbortSignal.timeout(15_000),
   })
 
   if (!response.ok) {
-    const detail = await response.text().catch(() => "")
-    throw new Error(`Authentication email delivery failed (${response.status}): ${detail.slice(0, 300)}`)
+    // Provider bodies may contain recipient details or the secret login URL.
+    // Do not log them or retry an ambiguous send automatically.
+    throw new Error(`Cloudflare authentication email delivery failed (HTTP ${response.status})`)
+  }
+  const data = await response.json().catch(() => null)
+  const result = data?.result
+  const includesRecipient = (value: unknown): boolean => Array.isArray(value)
+    && value.some((address) => typeof address === "string" && address.toLowerCase() === to.toLowerCase())
+  if (data?.success !== true
+    || (Array.isArray(data.errors) && data.errors.length > 0)
+    || includesRecipient(result?.permanent_bounces)
+    || includesRecipient(result?.suppressed_recipients)
+    || (!includesRecipient(result?.delivered) && !includesRecipient(result?.queued))) {
+    throw new Error("Cloudflare did not accept the authentication email for delivery")
   }
 }

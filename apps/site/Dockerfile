@@ -41,21 +41,21 @@ COPY public ./apps/site/public
 # Source tree.
 COPY apps/site     ./apps/site
 COPY packages/models ./packages/models
+COPY tests ./tests
 
 # Build the Next.js site.
 WORKDIR /repo/apps/site
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN bun run build
+RUN bun run test && bun run build
 
 # ─── Stage 2: production runtime ────────────────────────────
 # Same pin as the builder — keeps the runtime on the same bun minor as the
 # lockfile was generated against. Slim variant; trimming curl'd layers.
 FROM oven/bun:1.3-slim AS runner
 
-# ca-certificates so HTTPS works for bun's registry pulls; skip wget because
-# k8s httpGet probes cover health.
+# curl supports Coolify's container health checks as well as Kubernetes probes.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates \
+ && apt-get install -y --no-install-recommends ca-certificates curl \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /repo

@@ -76,8 +76,8 @@ The site uses [Better Auth](https://better-auth.com) with PostgreSQL for:
 
 Auth routes are mounted at `/api/auth/[...all]`. Configure the site with
 `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and
-`TRUSTED_ORIGINS`. Configure `RESEND_API_KEY` and `RESEND_EMAIL_FROM` for
-magic-link delivery, plus optional Google/GitHub OAuth credentials. See
+`TRUSTED_ORIGINS`. Configure Cloudflare Email Sending for magic-link
+delivery, plus optional Google/GitHub OAuth credentials. See
 [`apps/site/README.md`](apps/site/README.md).
 
 ### Stripe Billing

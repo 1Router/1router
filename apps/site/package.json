@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test": "bun test ../../tests/auth-email.test.ts",
     "auth:generate": "bun x @better-auth/cli@1.4.21 generate --config ./src/lib/auth.ts --output ./src/lib/auth-schema.sql --yes",
     "auth:migrate": "bun x @better-auth/cli@1.4.21 migrate --config ./src/lib/auth.ts --yes",
     "auth:bootstrap": "bash ../../scripts/bootstrap-auth-db.sh",

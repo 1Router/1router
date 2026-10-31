@@ -1,0 +1,8 @@
+.git
+**/node_modules
+**/.next
+**/target
+**/.turbo
+**/.env
+**/.env.*
+ref
