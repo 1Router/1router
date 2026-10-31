@@ -52,10 +52,9 @@ RUN bun run build
 # lockfile was generated against. Slim variant; trimming curl'd layers.
 FROM oven/bun:1.3-slim AS runner
 
-# ca-certificates so HTTPS works for bun's registry pulls; skip wget because
-# k8s httpGet probes cover health.
+# curl supports Coolify's container health checks as well as Kubernetes probes.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates \
+ && apt-get install -y --no-install-recommends ca-certificates curl \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /repo
